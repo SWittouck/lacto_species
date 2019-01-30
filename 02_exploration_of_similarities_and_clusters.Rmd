@@ -1,0 +1,337 @@
+---
+title: "Exploration of similarities and genome clusters"
+author: "Stijn Wittouck"
+date: "January 29, 2019"
+output:
+  html_document:
+    depth: 2
+    number_sections: yes
+    theme: united
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+```
+
+Input/output directories: 
+
+```{r}
+din <- "input_v3"
+dout <- "results_v3"
+parsed <- "parsed_v3"
+```
+
+Create output directories: 
+
+```{r}
+if (! dir.exists(dout)) dir.create(dout, recursive = T)
+if (! dir.exists(parsed)) dir.create(parsed, recursive = T)
+```
+
+The first goal of this document is to explore various pairwise genome similarity measures. In addition, we will visualize the cluster exclusivity property for various core nucleotide identity (CNI) clustering cutoffs. Finaly, we will explore exclusivity and transitivity for a 94% CNI clustering cutoff. 
+
+# Import data and set parameters
+
+We need the following information:
+
+* A table with for each unique pair of genomes: the CNI similarity, fastANI similarity and TETRA similarity. 
+* A table with for each genome, the genome cluster it belongs to. 
+* A table with for various possible clustering CNI cutoff values, the number of clusters that is exclusive and the total number of clusters. 
+
+Let's load these tables:
+
+```{r}
+pairs <- 
+  paste0(din, "/genome_pairs.csv.zip") %>%
+  read_csv()
+genomes_clusters <- 
+  paste0(din, "/genomes_clusters.csv") %>%
+  read_csv()
+exclusivity <- 
+  paste0(din, "/exclusivity.csv") %>%
+  read_csv()
+```
+
+Set species delimitation cutoffs to show in figures:
+
+```{r}
+cutoff_cni <- 0.94
+cutoff_ani <- 0.93
+cutoff_tetra <- 0.99
+```
+
+List with all (unique) genomes:
+
+```{r}
+genomes <- c(pairs$genome_1, pairs$genome_2) %>% unique()
+n <- length(genomes)
+```
+
+# Pairwise genome similarities
+
+## CNIs
+
+Function to plot density for a given similarity measure: 
+
+```{r}
+plot_density <- function(data, similarity, cutoff, xlab) {
+  
+  similarity <- enexpr(similarity)
+  
+  bg <- 
+    tibble(
+      background = c("different species", "same species"),
+      xmin = c(- Inf, cutoff),
+      xmax = c(cutoff, Inf),
+      ymin = c(- Inf, - Inf),
+      ymax = c(Inf, Inf)
+    )
+  
+  data %>%
+    ggplot(aes(x = !! similarity)) + 
+    geom_rect(data = bg, mapping = aes(fill = background, xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, x = NULL)) +
+    geom_density() +
+    geom_rug(alpha = 0.1) +
+    scale_fill_manual(values = c("different species" = "white", "same species" = "lightgrey")) + 
+    scale_x_continuous(labels = function(x) sprintf("%.2f", x)) +
+    theme_bw() +
+    theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      panel.grid = element_blank(),
+      legend.position = "bottom"
+    ) +
+    xlab(xlab) +
+    guides(color = "none")
+  
+}
+```
+
+Plot cni density: 
+
+```{r}
+(
+  fig_density_cni <- 
+    pairs %>%
+    filter(ani > 0.75) %>%
+    plot_density(cni, cutoff_cni, "core nucleotide identity (CNI)") + 
+    xlim(c(0.55, 1))
+)
+ggsave(paste0(dout, "/density_cni.png"), units = "cm", width = 15, height = 10)
+```
+
+## fastANIs
+
+Density:
+
+```{r}
+(
+  fig_density_ani <- 
+    pairs %>%
+    filter(ani > 0.75) %>%
+    plot_density(ani, cutoff_ani, "average nucleotide identity (ANI)") + 
+    xlim(c(0.55, 1))
+)
+ggsave(paste0(dout, "/density_ani.png"), units = "cm", width = 15, height = 10)
+```
+
+## TETRAs
+
+Density:
+
+```{r}
+(
+  fig_density_tetra <- 
+    pairs %>%
+    filter(ani > 0.75) %>%
+    plot_density(tetra, cutoff_tetra, "tetranucleotide correlation (TETRA)")
+)
+ggsave(paste0(dout, "/density_tetra.png"), units = "cm", width = 15, height = 10)
+```
+
+## Compare genome similarity measures
+
+Scatterplot of CNI vs ANI: 
+
+```{r}
+(
+  fig_scatter_cni_ani <- 
+    pairs %>%
+    filter(ani > 0.75) %>%
+    ggplot(aes(x = cni, y = ani)) +
+    geom_vline(xintercept = cutoff_cni, col = "grey") +
+    geom_hline(yintercept = cutoff_ani, col = "grey") +
+    stat_function(fun = function(x) x, lty = 5, col = "grey") +
+    geom_point(size = 0.1, alpha = 0.1, col = "grey") + 
+    xlim(c(0.55, 1)) + ylim(c(0.55, 1)) + 
+    scale_x_continuous(labels = function(x) sprintf("%.2f", x)) + 
+    scale_y_continuous(labels = function(x) sprintf("%.2f", x)) + 
+    theme_bw() +
+    xlab("core nucleotide identity (CNI)") +
+    ylab("average nucleotide identity (ANI)")
+)
+ggsave(paste0(dout, "/scatter_cni_ani.png"), units = "cm", width = 15, height = 10)
+```
+
+# Exclusivity for various CNI cutoffs
+
+We performed single-linkage hierarchical clustering and computed for each clustering step the number of clusters that were non-exclusive. (A cluster is exclusive when all its genomes are more similar to each other than to any genome outside of the cluster.) We now visualize the result:
+
+```{r}
+exclusivity %>%
+  mutate(
+    n_non_exclusive = n_clusters - n_exclusive, 
+    percentage_exclusive = n_exclusive / n_clusters,
+    all_clusters_exclusive = percentage_exclusive == 1
+  ) %>%
+  ggplot(aes(x = similarity, y = n_non_exclusive)) +
+  geom_line() +
+  geom_point(aes(col = all_clusters_exclusive)) +
+  scale_color_brewer(palette = "Paired") +
+  theme_bw() +
+  xlab("core nucleotide identity (CNI) cutoff") +
+  ylab("number of non-exclusive clusters")
+ggsave("results_v3/figure_S3_exclusivity.png", units = "cm", width = 20, height = 10)
+```
+
+# Transitivity and exclusivity for 94% CNI cutoff
+
+In this section, we will work with a "tidygenomes" object, which is just a list of a genomes table, a genome pairs table and a clusters table. 
+
+We'll first create a function to add exclusivity and related measures (maximum similarity between clusters, minimum similarity within clusters) to the clusters table of a tidygenomes object: 
+
+```{r}
+complete_pairs <- function(pairs) {
+  
+  pairs_2 <-
+    pairs %>%
+    rename(genome_1_new = genome_2, genome_2_new = genome_1) %>%
+    rename(genome_1 = genome_1_new, genome_2 = genome_2_new)
+  
+  bind_rows(pairs, pairs_2)
+  
+}
+
+add_exclusivity <- function(tg, similarity) {
+  
+  genome_pairs_full <- 
+    complete_pairs(tg$genome_pairs) %>%
+    left_join(tg$genomes %>% select(genome_1 = genome, cluster_1 = cluster)) %>%
+    left_join(tg$genomes %>% select(genome_2 = genome, cluster_2 = cluster)) %>%
+    mutate(within = cluster_1 == cluster_2) %>%
+    rename(similarity = !! similarity)
+  
+  clusters_excl <-
+    genome_pairs_full %>%
+    rename(cluster = cluster_1) %>%
+    group_by(cluster) %>%
+    summarize(
+      min_similarity_within = 
+        similarity[within] %>%
+        {
+          if (length(.) == 0) {1} else {min(.)} 
+        },
+      max_similarity_between = 
+        similarity[! within] %>%
+        max(),
+      closest =
+        cluster_2[! within] %>%
+        `[`(similarity[! within] == max(similarity[! within])) %>%
+        unique() %>%
+        str_c(collapse = ", ")
+    ) %>%
+    mutate(exclusive = min_similarity_within > max_similarity_between)
+  
+  min_similarity_within <- paste0("min_", similarity, "_within")
+  max_similarity_between <- paste0("max_", similarity, "_between") 
+  closest <- paste0("closest_", similarity)
+  exclusive <- paste0("exclusive_", similarity)
+  
+  clusters_excl <-
+    clusters_excl %>%
+    rename(
+      !! min_similarity_within := min_similarity_within,
+      !! max_similarity_between := max_similarity_between,
+      !! closest := closest,
+      !! exclusive := exclusive
+    )
+  
+  tg$clusters <- left_join(tg$clusters, clusters_excl)
+  
+  tg
+  
+}
+```
+
+Now we create the tidygenomes object and actually compute the exclusivities: 
+
+```{r}
+lgc <-
+  list(
+    genomes = genomes_clusters, 
+    genome_pairs = pairs, 
+    clusters = count(genomes_clusters, cluster)
+  ) %>%
+  add_exclusivity(similarity = "cni") 
+```
+
+We write the cluster table with minimum distance within clusters, maximum distance between clusters, closest neighbors etc to a file: 
+
+```{r}
+write_csv(lgc$clusters, paste0(parsed, "/clusters_exclusivity.csv"))
+```
+
+Let's inspect the exclusivity and transitivity, or lack theirof: 
+
+```{r}
+lgc$clusters %>%
+  mutate(
+    n_genomes = case_when(
+      n == 1 ~ "one genome", 
+      n == 2 ~ "two genomes",
+      TRUE ~ "more genomes"
+    )
+  ) %>%
+  mutate(n_genomes = fct_reorder(n_genomes, n)) %>%
+  mutate(cluster = fct_reorder(cluster, max_cni_between)) %>%
+  gather(key = "cni_type", value = "cni", min_cni_within, max_cni_between) %>%
+  ggplot(aes(x = cni, y = cluster, col = cni_type)) +
+  geom_point(size = 1) +
+  geom_vline(xintercept = 0.94) +
+  facet_wrap(~ n_genomes, scales = "free_y") +
+  scale_color_brewer(palette = "Paired") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+ggsave(paste0(dout, "/figure_S2_clusters_cnis.png"), units = "cm", width = 20, height = 25)
+```
+
+# Compose figure 2
+
+```{r}
+give_letter <- function(plot, letter) {
+  
+  g <- ggplotGrob(plot + ggtitle(letter))
+  g$layout$l[g$layout$name == "title"] <- 1
+  
+  g
+  
+}
+
+ggarrange(
+  ggarrange(
+    fig_density_cni %>% give_letter("A"), 
+    fig_density_ani %>% give_letter("B"), 
+    ncol = 1, nrow = 2
+  ),
+  fig_scatter_cni_ani %>% give_letter("C"),
+  nrow = 1, ncol = 2
+)
+ggsave(paste0(dout, "/figure_2.png"), units = "cm", width = 40, height = 20)
+```

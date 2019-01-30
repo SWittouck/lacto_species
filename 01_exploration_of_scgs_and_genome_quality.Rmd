@@ -1,0 +1,279 @@
+---
+title: "Exploration of single-copy core genes and genome quality"
+author: "Stijn Wittouck"
+date: "January 29, 2019"
+output:
+  html_document:
+    depth: 2
+    number_sections: yes
+    theme: united
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+```
+
+Input/output directories: 
+
+```{r}
+din <- "input_v3"
+dout <- "results_v3"
+parsed <- "parsed_v3"
+```
+
+Create output directories: 
+
+```{r}
+if (! dir.exists(dout)) dir.create(dout, recursive = T)
+if (! dir.exists(parsed)) dir.create(parsed, recursive = T)
+```
+
+The goal of this document is to explore the candidate and definitive single-copy core genes (SCGs) for the Lactobacillus genus complex (LGC). We will also visualize quality measures of the genomes; those are based on the SCGs. 
+
+A few notes on terminology: 
+
+* In most cases when we use the word "gene", we are referring to an individual gene in one genome, with a specific sequence. However, when we talk about "single-copy core genes", we are actually referring to gene families. 
+* When a gene family (e.g. an SCG) is represented by multiple genes in a single genome, we sometimes refer to those genes as "copies". 
+* We sometimes refer to (candidate) SCGs as "profiles", because they are represented by profile HMMs. 
+
+# Load data
+
+We need the following information:
+
+* A table with genes that show sequence similarity to candidate SCGs (and thus might belong to the candidate SCG, which is a gene family). This gene table includes the score of the gene to the SCG, the start and end positions in the profile HMM of the alignment and the genome of the gene. This table has already been pre-filtered to only contain the best-scoring candidate SCG per gene. 
+* A table of the candidate SCGs (profiles), with their score cutoffs, the number of genomes they were found in in a single copy and the number of genomes they were found in in multiple copies. 
+* A table of the genomes with their SCG-based quality measures: completeness and redundancy. 
+
+```{r}
+genes <- read_csv(paste0(din, "/score_table.csv.zip"))
+profiles <- read_csv(paste0(din, "/candidate_scg_table.csv"))
+genomes <- read_csv(paste0(din, "/genome_table.csv"))
+```
+
+# Inspection of hmmer cutoffs
+
+We calculate the length of the gene alignments to the candidate SCGs and add this to the genes table:
+
+```{r}
+genes <- mutate(genes, length = hmm_to - hmm_from)
+```
+
+We add variable to the genes table that tells us whether a gene is the best-scoring "copy" of a profile in a genome: 
+
+```{r}
+genes <- 
+  genes %>%
+  group_by(profile) %>%
+  arrange(- score) %>%
+  mutate(is_best_copy = ! duplicated(genome)) %>%
+  ungroup()
+```
+
+We take a random subset of profiles to explore in some visualizations: 
+
+```{r}
+profiles_subset <- sample(profiles$profile, 25)
+```
+
+Visualize gene scores and alignment lengths per profile, as well as the profile-specific score cutoffs that were trained: 
+
+```{r}
+genes %>%
+  filter(profile %in% !! profiles_subset) %>%
+  ggplot(aes(x = length, y = score, col = is_best_copy)) +
+  geom_point(size = 0.1) + 
+  geom_hline(
+    data = profiles %>% filter(profile %in% profiles_subset), 
+    aes(yintercept = gene_cutoff), col = "grey"
+  ) + 
+  facet_wrap(~ profile, scales = "free") + 
+  scale_color_brewer(palette = "Paired") + 
+  theme_bw() 
+ggsave(paste0(dout, "/example_profiles_scores.png"), units = "cm", width = 30, height = 20)
+```
+
+Same plot, but with length-corrected scores:  
+
+```{r}
+genes %>%
+  filter(profile %in% !! profiles_subset) %>%
+  mutate(score_corrected = score / length) %>%
+  group_by(profile) %>%
+  arrange(- score_corrected) %>%
+  mutate(is_best_copy = ! duplicated(genome)) %>%
+  ungroup()  %>%
+  ggplot(aes(x = length, y = score_corrected, col = is_best_copy)) +
+  geom_point(size = 0.1) + 
+  facet_wrap(~ profile, scales = "free") + 
+  scale_color_brewer(palette = "Paired") + 
+  theme_bw() 
+ggsave(paste0(dout, "/example_profiles_scores_corrected.png"), units = "cm", width = 30, height = 20)
+```
+
+Score densities per profile (important for the interpretation: we show a separate density of best-copies and non-best-copies per profile, but both densities are automatically normalized to have the same area-under-the-curve by ggplot!!): 
+
+```{r}
+genes %>%
+  filter(profile %in% profiles_subset) %>%
+  ggplot(aes(x = score, fill = is_best_copy)) +
+  geom_density(alpha = 0.5) + 
+  geom_vline(
+    data = profiles %>% filter(profile %in% profiles_subset), 
+    aes(xintercept = gene_cutoff), col = "black"
+  ) + 
+  facet_wrap(~ profile, scales = "free")
+ggsave(paste0(dout, "/example_profiles_scores_densities.png"), units = "cm", width = 30, height = 20)
+```
+
+Experimental visulization of cumulative number of genes and number of unique genomes as the score increases: 
+
+```{r}
+genes %>%
+  filter(profile %in% profiles_subset) %>%
+  group_by(profile) %>%
+  arrange(- score) %>%
+  mutate(n_genomes = cumsum(! duplicated(genome))) %>%
+  mutate(n_genes = 1:n()) %>%
+  gather(value = "count", key = "feature", n_genomes, n_genes) %>%
+  ggplot(aes(x = 1 - score, y = count, color = feature)) +
+  geom_line() + 
+  geom_point(size = 0.1) + 
+  facet_wrap(~ profile, scales = "free")
+```
+
+# Inspection of candidate SCGs
+
+For each profile, we have a count of genomes where it occurs in a single copy and a count of genomes where it occurs in multiple copies. We convert these counts to percentages of the total number of genomes: 
+
+```{r}
+n_genomes <- genes$genome %>% unique() %>% length()
+profiles <-
+  profiles %>%
+  mutate(
+    single_copy = single_copy_presence / !! n_genomes,
+    multi_copy = multi_copy_presence / !! n_genomes
+  )
+```
+
+Visualize single- and multi-copy presence of candidate SCGs: 
+
+```{r}
+profiles %>%
+  arrange(- single_copy_presence) %>%
+  mutate(profile = 1:n()) %>%
+  gather(value = "percentage_of_genomes", key = "copy_number", single_copy, multi_copy) %>%
+  ggplot(aes(x = profile, y = percentage_of_genomes, fill = copy_number, col = copy_number)) +
+  geom_col() + 
+  geom_hline(yintercept = 0.95) + 
+  geom_vline(xintercept = profiles %>% filter(single_copy >= 0.95) %>% nrow(), color = "grey", lty = 2) + 
+  scale_fill_brewer(palette = "Paired") + 
+  scale_color_brewer(palette = "Paired") + 
+  theme_bw()
+ggsave(paste0(dout, "/figure_S1_profile_selection.png"), units = "cm", width = 30, height = 20)
+```
+
+Number of profiles that pass the 95% single-copy presence cutoff:
+
+```{r}
+passing_profiles <- 
+  profiles %>% 
+  filter(single_copy >= 0.95) %>% 
+  pull(profile)
+length(passing_profiles)
+```
+
+Score densities for random sample of selected profiles (same important interpretation note as previous density plot!!): 
+
+```{r}
+profiles_selected <- sample(passing_profiles, 25)
+genes %>%
+  filter(profile %in% !! profiles_selected) %>%
+  ggplot(aes(x = score, fill = is_best_copy, col = is_best_copy)) +
+  geom_density(alpha = 0.5) + 
+  geom_rug() + 
+  geom_vline(
+    data = profiles %>% filter(profile %in% !! profiles_selected), 
+    aes(xintercept = gene_cutoff), col = "black"
+  ) + 
+  facet_wrap(~ profile, scales = "free")
+ggsave(paste0(dout, "/example_passing_profiles_scores_densities.png"), units = "cm", width = 30, height = 20)
+```
+
+# Selection of genomes
+
+Visualize density of the completeness values of the genomes:
+
+```{r}
+(
+  fig_genomes_completeness <- 
+    genomes %>%
+    ggplot(aes(x = completeness)) + 
+    geom_density() +
+    geom_rug() + 
+    geom_vline(xintercept = 0.90, color = "black", lty = 2) + 
+    xlim(c(0, 1)) + 
+    theme_bw() +
+    theme(
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank()
+    )
+)
+ggsave(paste0(dout, "/genomes_completeness.png"), units = "cm", width = 20, height = 15)
+```
+
+Visualize density of the redundancy values of the genomes:
+
+```{r}
+(
+  fig_genomes_redundancy <- 
+    genomes %>%
+    ggplot(aes(x = redundancy)) + 
+    geom_density() +
+    geom_rug() + 
+    geom_vline(xintercept = 0.10, color = "black", lty = 2) + 
+    xlim(c(0, 1)) + 
+    theme_bw() +
+    theme(
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank()
+    )
+)
+ggsave(paste0(dout, "/genomes_redundancy.png"), units = "cm", width = 20, height = 15)
+```
+
+Completeness vs redundancy scatterplot: 
+
+```{r}
+genomes %>%
+  ggplot(aes(x = completeness, y = redundancy)) + 
+  geom_point(size = 1) +
+  xlim(c(0, 1)) + ylim(c(0, 1)) + 
+  theme_bw()
+```
+
+# Compose figure 1
+
+```{r}
+give_letter <- function(plot, letter) {
+  
+  g <- ggplotGrob(plot + ggtitle(letter))
+  g$layout$l[g$layout$name == "title"] <- 1
+  
+  g
+  
+}
+
+ggarrange(
+  fig_genomes_completeness %>% give_letter("A"), 
+  fig_genomes_redundancy %>% give_letter("B"), 
+  nrow = 2, ncol = 1
+)
+ggsave(paste0(dout, "/figure_1.png"), units = "cm", width = 20, height = 10)
+```
