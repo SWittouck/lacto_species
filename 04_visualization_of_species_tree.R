@@ -112,4 +112,4 @@ tree %>%
     panel.background = element_rect(fill = "transparent", color = NA), 
     plot.background = element_rect(fill = "transparent", color = NA)
   )
-ggsave(paste0(dout, "/figure_3.png"), bg = "white", units = "cm", width = 20, height = 20)
+ggsave(paste0(dout, "/figure_3.jpg"), bg = "white", units = "cm", width = 20, height = 20, dpi = 600)

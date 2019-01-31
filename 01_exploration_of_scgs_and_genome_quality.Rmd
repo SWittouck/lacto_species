@@ -176,7 +176,7 @@ profiles %>%
   scale_fill_brewer(palette = "Paired") + 
   scale_color_brewer(palette = "Paired") + 
   theme_bw()
-ggsave(paste0(dout, "/figure_S1_profile_selection.png"), units = "cm", width = 30, height = 20)
+ggsave(paste0(dout, "/figure_S1_profile_selection.jpeg"), units = "cm", width = 30, height = 20)
 ```
 
 Number of profiles that pass the 95% single-copy presence cutoff:
@@ -275,5 +275,5 @@ ggarrange(
   fig_genomes_redundancy %>% give_letter("B"), 
   nrow = 2, ncol = 1
 )
-ggsave(paste0(dout, "/figure_1.png"), units = "cm", width = 20, height = 10)
+ggsave(paste0(dout, "/figure_1.jpg"), units = "cm", width = 20, height = 10)
 ```

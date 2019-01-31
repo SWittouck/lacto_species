@@ -198,7 +198,7 @@ exclusivity %>%
   theme_bw() +
   xlab("core nucleotide identity (CNI) cutoff") +
   ylab("number of non-exclusive clusters")
-ggsave("results_v3/figure_S3_exclusivity.png", units = "cm", width = 20, height = 10)
+ggsave("results_v3/figure_S3_exclusivity.jpg", units = "cm", width = 20, height = 10)
 ```
 
 # Transitivity and exclusivity for 94% CNI cutoff
@@ -309,7 +309,7 @@ lgc$clusters %>%
   scale_color_brewer(palette = "Paired") +
   theme_bw() +
   theme(legend.position = "bottom")
-ggsave(paste0(dout, "/figure_S2_clusters_cnis.png"), units = "cm", width = 20, height = 25)
+ggsave(paste0(dout, "/figure_S2_clusters_cnis.jpg"), units = "cm", width = 20, height = 25)
 ```
 
 # Compose figure 2
@@ -333,5 +333,5 @@ ggarrange(
   fig_scatter_cni_ani %>% give_letter("C"),
   nrow = 1, ncol = 2
 )
-ggsave(paste0(dout, "/figure_2.png"), units = "cm", width = 40, height = 20)
+ggsave(paste0(dout, "/figure_2.jpg"), units = "cm", width = 40, height = 20)
 ```

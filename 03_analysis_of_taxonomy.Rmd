@@ -332,7 +332,11 @@ bind_rows(
   group_by(cluster, merger_split) %>%
   summarize(names = str_c(name, collapse = ", ")) %>%
   left_join(clusters_exlusivity) %>%
-  select(cluster, merger_split, names, n_genomes = n, min_cni_within, max_cni_between) %>%
+  select(cluster, merger_split, names, min_cni_within) %>%
+  mutate_at("names", str_replace_all, "Lactobacillus", "L.") %>%
+  mutate_at("names", str_replace_all, "Pediococcus", "P.") %>%
+  mutate_at("names", str_replace_all, "Weissella", "W.") %>%
+  mutate_at("names", str_replace_all, "Leuconostoc", "Leuc.") %>%
   arrange(merger_split, desc(min_cni_within)) %>%
   write_csv(paste0(dout, "/table_1.csv"))
 ```
@@ -425,7 +429,7 @@ clusters_tss <-
     certainty = case_when(
       ! is.na(species_ncbi) & status == "16S sequences with hits" ~ "best guess",
       status == "16S sequences without hits" ~ "new species",
-      TRUE ~ "unidentified species"
+      TRUE ~ "unidentified"
     )
   ) %>%
   group_by(certainty) %>%
@@ -433,7 +437,7 @@ clusters_tss <-
     species = case_when(
       certainty == "best guess" ~ str_c(species_ncbi, " (?)"),
       certainty == "new species" ~ str_c("New species", 1:n(), sep = " "),
-      certainty == "unidentified species" ~ str_c("Unidentified species", 1:n(), sep = " ")
+      certainty == "unidentified" ~ str_c("Unidentified species", 1:n(), sep = " ")
     )
   ) %>%
   ungroup()
@@ -445,10 +449,15 @@ Let's write table 2:
 clusters_tss %>%
   mutate_at(
     "certainty", factor, 
-    levels = c("certain", "best guess", "unidentified", "new species")
+    levels = c("best guess", "new species", "unidentified")
   ) %>%
-  select(cluster, n_genomes, species_ncbi, n_16S, sixteen_s_hits, certainty, species) %>%
-  arrange(certainty) %>%
+  arrange(certainty)  %>%
+  select(cluster, species_ncbi, n_16S, sixteen_s_hits, species)%>%
+  mutate_all(str_replace_all, "_", " ") %>%
+  mutate_all(str_replace_all, "Lactobacillus", "L.") %>%
+  mutate_all(str_replace_all, "Pediococcus", "P.") %>%
+  mutate_all(str_replace_all, "Weissella", "W.") %>%
+  mutate_all(str_replace_all, "Leuconostoc", "Leuc.") %>%
   write_csv(paste0(dout, "/table_2.csv"))
 ```
 
@@ -639,5 +648,5 @@ ggarrange(
   fig_reclassifications_classified %>% give_letter("B"),
   ncol = 1, nrow = 2, heights = c(1, 2)
 )
-ggsave(paste0(dout, "/figure_4.png"), units = "cm", width = 30, height = 40)
+ggsave(paste0(dout, "/figure_4.jpg"), units = "cm", width = 35, height = 40)
 ```
