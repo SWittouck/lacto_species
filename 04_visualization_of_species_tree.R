@@ -52,36 +52,42 @@ ge <- function(x, y) x >= y
 # Add phylogroups to the genomes table
 genomes_clusters_extended <- 
   genomes_clusters %>%
+  mutate_at("species", str_replace, "Lactobacillus", "L.") %>%
+  mutate_at("species", str_replace, "Pediococcus", "P.") %>%
+  mutate_at("species", str_replace, "Leuconostoc", "Leuc.") %>%
+  mutate_at("species", str_replace, "Weissella", "W.") %>%
+  mutate_at("species", str_replace, "Oenococcus", "O.") %>%
+  mutate_at("species", str_replace, "Fructobacillus", "F.") %>%
   left_join(tribble(
     ~ species, ~ phylogroup,
-    "Lactobacillus floricola", "floricola group",
-    "Lactobacillus amylophilus", "amylophilus group",
-    "Lactobacillus delbrueckii", "delbrueckii group",
-    "Lactobacillus mellifer", "mellifer group",
-    "Lactobacillus alimentarius", "alimentarius group",
-    "Lactobacillus dextrinicus", "dextrinicus group",
-    "Lactobacillus composti", "composti group",
-    "Lactobacillus perolens", "perolens group",
-    "Lactobacillus casei",  "casei group",
-    "Lactobacillus selangorensis", "selangorensis group",
-    "Lactobacillus sakei", "sakei group",
-    "Lactobacillus coryniformis", "coryniformis group",
-    "Lactobacillus algidus", "algidus group",
-    "Lactobacillus salivarius", "salivarius group",
-    "Lactobacillus plantarum", "plantarum group",
-    "Lactobacillus rossiae", "rossiae group",
-    "Lactobacillus vaccinostercus", "vaccinostercus group",
-    "Lactobacillus reuteri", "reuteri group",
-    "Lactobacillus collinoides", "collinoides group",
-    "Lactobacillus brevis", "brevis group",
-    "Lactobacillus kunkeei", "kunkeei group",
-    "Lactobacillus fructivorans", "fructivorans group",
-    "Lactobacillus buchneri", "buchneri group",
-    "Pediococcus acidilactici", "Pediococcus",
-    "Leuconostoc mesenteroides", "Leuconostoc",
-    "Fructobacillus fructosus", "Fructobacillus",
-    "Weissella viridescens", "Weissella",
-    "Oenococcus oeni", "Oenococcus"
+    "L. floricola", "floricola group",
+    "L. amylophilus", "amylophilus group",
+    "L. delbrueckii", "delbrueckii group",
+    "L. mellifer", "mellifer group",
+    "L. alimentarius", "alimentarius group",
+    "L. dextrinicus", "dextrinicus group",
+    "L. composti", "composti group",
+    "L. perolens", "perolens group",
+    "L. casei",  "casei group",
+    "L. selangorensis", "selangorensis group",
+    "L. sakei", "sakei group",
+    "L. coryniformis", "coryniformis group",
+    "L. algidus", "algidus group",
+    "L. salivarius", "salivarius group",
+    "L. plantarum", "plantarum group",
+    "L. rossiae", "rossiae group",
+    "L. vaccinostercus", "vaccinostercus group",
+    "L. reuteri", "reuteri group",
+    "L. collinoides", "collinoides group",
+    "L. brevis", "brevis group",
+    "L. kunkeei", "kunkeei group",
+    "L. fructivorans", "fructivorans group",
+    "L. buchneri", "buchneri group",
+    "P. acidilactici", "Pediococcus",
+    "Leuc. mesenteroides", "Leuconostoc",
+    "F. fructosus", "Fructobacillus",
+    "W. viridescens", "Weissella",
+    "O. oeni", "Oenococcus"
   )) %>%
   mutate(
     species_type =
