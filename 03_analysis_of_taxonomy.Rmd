@@ -596,14 +596,32 @@ How many genomes do we reclassify?
 count(genomes_to_plot, reclassified)
 ```
 
-What are the most frequent reclassifications? 
+What are the most frequent reclassifications, and what type of reclassification are they?
 
 ```{r}
-genomes_to_plot %>%
+reclassification_counts <-
+  genomes_to_plot %>%
+  mutate(
+    type_of_reclassification = case_when(
+      species_ncbi %in% !! species_to_drop ~ "due to merger",
+      species_cni == "Lactobacillus araffinosus" ~ "due to split", 
+      str_detect(species_cni, "[0-9]") ~ "new/unidentified species",
+      TRUE ~ "correction of misclassification"
+    )
+  ) %>%
   filter(reclassified == "yes") %>%
-  count(species_ncbi, species_cni) %>%
+  count(species_ncbi, species_cni, type_of_reclassification)
+reclassification_counts %>%
   arrange(- n) %>%
   print(n = 30)
+```
+
+How much reclassifications of each type did we perform? 
+
+```{r}
+reclassification_counts %>%
+  group_by(type_of_reclassification) %>%
+  summarize(n = sum(n)) 
 ```
 
 Scatterplot:
@@ -625,7 +643,7 @@ Scatterplot:
 ggsave(paste0(dout, "/reclassifications_classified.png"), units = "cm", width = 25, height = 20)
 ```
 
-## Compose figure 2
+## Compose figure 4
 
 Load necessary libraries to make figure panel and custom function to given figure letters: 
 
