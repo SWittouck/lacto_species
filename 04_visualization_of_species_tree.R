@@ -14,7 +14,7 @@ if (! dir.exists(dout)) dir.create(dout, recursive = T)
 # Read necessary files
 tree <-
   paste0(din, "/RAxML_bipartitions.lgc") %>%
-  read.tree() 
+  ggtree::read.tree() 
 genomes_clusters <- 
   paste0(din, "/genomes_clusters.csv") %>%
   read_csv()
@@ -46,49 +46,56 @@ tree <- bind.tip(
 # Reroot the tree on the branch leading to the outgroup
 tree <- reroot(tree, node.number = which(tree$tip.label == "outgroup"), position = 1)
 
+# Save tree for later use
+write.tree(tree, file = "parsed_v3/tree_rooted.tree")
+
 # Small helper function
 ge <- function(x, y) x >= y 
+
+# Define phylogroups
+phylogroups <-
+  tribble(
+    ~ species_type, ~ species_peripheral, ~ phylogroup,
+    "L. floricola", "L. floricola", "floricola group",
+    "L. amylophilus", "L. amylotrophicus", "amylophilus group",
+    "L. delbrueckii", "L. iners", "delbrueckii group",
+    "L. mellifer", "L. mellis", "mellifer group",
+    "L. alimentarius", "L. terrae", "alimentarius group",
+    "L. dextrinicus", "L. concavus", "dextrinicus group",
+    "L. composti", "L. composti", "composti group",
+    "L. perolens", "L. harbinensis", "perolens group",
+    "L. casei", "L. sharpeae",  "casei group",
+    "L. selangorensis", "L. selangorensis", "selangorensis group",
+    "L. sakei", "L. fuchuensis", "sakei group",
+    "L. coryniformis", "L. bifermentans", "coryniformis group",
+    "L. algidus", "L. algidus", "algidus group",
+    "L. salivarius", "L. vini", "salivarius group",
+    "L. plantarum", "L. fabifermentans", "plantarum group",
+    "L. rossiae", "L. siliginis", "rossiae group",
+    "L. vaccinostercus", "L. oligofermentans", "vaccinostercus group",
+    "L. reuteri", "L. mucosae", "reuteri group",
+    "L. collinoides", "L. oryzae", "collinoides group",
+    "L. brevis", "L. bambusae", "brevis group",
+    "L. kunkeei", "L. ozensis", "kunkeei group",
+    "L. fructivorans", "L. florum", "fructivorans group",
+    "L. buchneri", "L. senioris", "buchneri group",
+    "P. acidilactici", "P. inopinatus", "Pediococcus",
+    "Leuc. mesenteroides", "Leuc. fallax", "Leuconostoc",
+    "F. fructosus", "F. tropaeoli", "Fructobacillus",
+    "W. viridescens", "W. soli", "Weissella",
+    "O. oeni", "O. kitaharae", "Oenococcus",
+    "C. intestini", "C. intestini", "Convivina"
+  )
+
+# Write phylogroups
+write_csv(phylogroups, path = "parsed_v3/phylogroups.csv")
 
 # Add phylogroups to the genomes table
 genomes_clusters_extended <- 
   genomes_clusters %>%
-  mutate_at("species", str_replace, "Lactobacillus", "L.") %>%
-  mutate_at("species", str_replace, "Pediococcus", "P.") %>%
-  mutate_at("species", str_replace, "Leuconostoc", "Leuc.") %>%
-  mutate_at("species", str_replace, "Weissella", "W.") %>%
-  mutate_at("species", str_replace, "Oenococcus", "O.") %>%
-  mutate_at("species", str_replace, "Fructobacillus", "F.") %>%
-  left_join(tribble(
-    ~ species, ~ phylogroup,
-    "L. floricola", "floricola group",
-    "L. amylophilus", "amylophilus group",
-    "L. delbrueckii", "delbrueckii group",
-    "L. mellifer", "mellifer group",
-    "L. alimentarius", "alimentarius group",
-    "L. dextrinicus", "dextrinicus group",
-    "L. composti", "composti group",
-    "L. perolens", "perolens group",
-    "L. casei",  "casei group",
-    "L. selangorensis", "selangorensis group",
-    "L. sakei", "sakei group",
-    "L. coryniformis", "coryniformis group",
-    "L. algidus", "algidus group",
-    "L. salivarius", "salivarius group",
-    "L. plantarum", "plantarum group",
-    "L. rossiae", "rossiae group",
-    "L. vaccinostercus", "vaccinostercus group",
-    "L. reuteri", "reuteri group",
-    "L. collinoides", "collinoides group",
-    "L. brevis", "brevis group",
-    "L. kunkeei", "kunkeei group",
-    "L. fructivorans", "fructivorans group",
-    "L. buchneri", "buchneri group",
-    "P. acidilactici", "Pediococcus",
-    "Leuc. mesenteroides", "Leuconostoc",
-    "F. fructosus", "Fructobacillus",
-    "W. viridescens", "Weissella",
-    "O. oeni", "Oenococcus"
-  )) %>%
+  mutate_at("species", str_replace, "Leuconostoc", "Leuc\\.") %>%
+  mutate_at("species", str_replace, "(?<=[A-Z])[a-z]{5,}", "\\.") %>%
+  left_join(phylogroups %>% rename(species = species_type)) %>%
   mutate(
     species_type =
       case_when(
