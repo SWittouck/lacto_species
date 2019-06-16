@@ -1,7 +1,5 @@
 library(tidyverse)
-library(ggtree)
 library(tidygenomes)
-# devtools::load_all("../../tidygenomes/tidygenomes/")
 
 # read and preprocess data
 
