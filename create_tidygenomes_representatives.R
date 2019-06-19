@@ -1,5 +1,6 @@
 library(tidyverse)
 library(tidygenomes)
+# devtools::load_all("../../tidygenomes/tidygenomes/")
 
 # read and preprocess data
 
@@ -12,6 +13,7 @@ pairs <- read_csv("input_v3/genome_pairs.csv.zip")
 
 clusters_species <- 
   clusters_species %>%
+  mutate(species_full = species) %>%
   mutate_at("species", str_replace, "Leuconostoc", "Leuc\\.") %>%
   mutate_at("species", str_replace, "(?<=[A-Z])[a-z]{5,}", "\\.")
 
@@ -21,7 +23,7 @@ phylogroups <-
 
 # construct tidygenomes object
 
-lgc <-
+lgc_repr <-
   as_tidygenomes(genes) %>%
   add_tidygenomes(tree) %>%
   add_genome_metadata(genomes_clusters) %>%
@@ -29,4 +31,4 @@ lgc <-
   add_phylogroups(phylogroups, genome_identifier = species) %>%
   add_tidygenomes(pairs)
 
-save(lgc, file = "parsed_v3/lgc_representatives_tidygenomes.rda")
+save(lgc_repr, file = "parsed_v3/lgc_tidygenomes_representatives.rda")
