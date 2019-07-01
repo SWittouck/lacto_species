@@ -1,7 +1,7 @@
 ---
 title: "Analysis of taxonomy and reclassifications"
 author: "Stijn Wittouck"
-date: "January 29, 2019"
+date: "June 19, 2019"
 output:
   html_document:
     depth: 2
@@ -25,14 +25,16 @@ Input/output directories:
 
 ```{r}
 din <- "input_v3"
-dout <- "results_v3"
+dout_all <- "results_v3/03_taxonomy"
+dout_paper <- "results_v3/paper_species_taxonomy"
 parsed <- "parsed_v3"
 ```
 
 Create output directories: 
 
 ```{r}
-if (! dir.exists(dout)) dir.create(dout, recursive = T)
+if (! dir.exists(dout_all)) dir.create(dout_all, recursive = T)
+if (! dir.exists(dout_paper)) dir.create(dout_paper, recursive = T)
 if (! dir.exists(parsed)) dir.create(parsed, recursive = T)
 ```
 
@@ -93,6 +95,24 @@ genomes_type_automatic %>% nrow()
 genomes_type_automatic$name %>% unique() %>% length() 
 genomes_type_automatic$species %>% unique() %>% length() 
 ```
+
+Finally, we'll create a general function to convert full species names to abbreviated names, to use for tables and figures. 
+
+```{r}
+abbreviate <- function(species) {
+  species %>%
+    str_replace_all("Lactobacillus", "L.") %>%
+    str_replace_all("Pediococcus", "P.") %>%
+    str_replace_all("Leuconostoc", "Leuc.") %>%
+    str_replace_all("Oenococcus", "O.") %>%
+    str_replace_all("Fructobacillus", "F.") %>%
+    str_replace_all("Weissella", "W.") %>%
+    str_replace_all("Convivina", "C.") %>%
+    str_replace_all("Unidentified", "Unident.") %>%
+    str_replace_all("pseudomesenteroides", "pseudomesent.")
+}
+```
+
 
 # Preparation of type genomes
 
@@ -164,12 +184,10 @@ Further in the pipeline, we noticed that all genomes of Weissella cibaria are re
 ```{r}
 genomes_type <-
   genomes_type %>%
-  anti_join(
-    tribble(
-      ~ strain_name, ~ species,
-      "M2", "Leuconostoc miyukkimchii"
-    )
-  )
+  anti_join(tribble(
+    ~ strain_name, ~ species,
+    "M2", "Leuconostoc miyukkimchii"
+  ))
 ```
 
 Inspect cases where the same genome is type for different names: 
@@ -186,12 +204,10 @@ L. suionicum is the more recent name, so let's pick that one:
 ```{r}
 genomes_type <-
   genomes_type %>%
-  anti_join(
-    tribble(
-      ~ genome, ~ species,
-      "GCF_001891125.1", "Leuconostoc mesenteroides"
-    )
-  )
+  anti_join(tribble(
+    ~ genome, ~ species,
+    "GCF_001891125.1", "Leuconostoc mesenteroides"
+  ))
 ```
 
 Inspect cases where exactly the same name is in different genome clusters:
@@ -217,19 +233,18 @@ How can we resolve those inconsistencies?
 Now we can remove those wrong genome - type strain connections:
 
 ```{r}
-wrong_genomes_type <- tribble(
-  ~ genome, ~ name,
-  "GCF_001433735.1", "Lactobacillus casei subsp. casei",
-  "GCF_000965255.1", "Lactobacillus hammesii",
-  "GCF_000091765.1", "Lactobacillus panis",
-  "GCF_000309665.1", "Lactobacillus similis"
-)
 genomes_type <-
   genomes_type %>%
-  anti_join(wrong_genomes_type)
+  anti_join(tribble(
+    ~ genome, ~ name,
+    "GCF_001433735.1", "Lactobacillus casei subsp. casei",
+    "GCF_000965255.1", "Lactobacillus hammesii",
+    "GCF_000091765.1", "Lactobacillus panis",
+    "GCF_000309665.1", "Lactobacillus similis"
+  ))
 ```
 
-Now we can make a table with "combinations" of genome clusters and names, to inspect taxonomic problems:
+Now we can make a table with "combinations" of genome clusters and names:
 
 ```{r}
 combinations <- 
@@ -314,7 +329,7 @@ combinations3 <-
   mutate(species = if_else(name == "Lactobacillus araffinosus", "Lactobacillus araffinosus", species))
 ```
 
-Now for our ultimate result of this part: a table with clusters named using automatically identified type genomes (tgs): 
+Now for our ultimate result of this part: a table with clusters named using automatically and manually identified type genomes (tgs): 
 
 ```{r}
 clusters_tgs <-
@@ -322,28 +337,27 @@ clusters_tgs <-
   distinct(cluster, species) 
 ```
 
-We also write out table 1:
+We also write out table 1, which is an overview of proposed species splits and mergers:
 
 ```{r}
-bind_rows(
-  mergers %>% mutate(merger_split = "merger"),
-  splits %>% mutate(merger_split = "split")
-) %>%
+splits_and_mergers <-
+  bind_rows(
+    mergers %>% mutate(merger_split = "merger"),
+    splits %>% mutate(merger_split = "split")
+  ) %>%
   group_by(cluster, merger_split) %>%
   summarize(names = str_c(name, collapse = ", ")) %>%
   left_join(clusters_exlusivity) %>%
   select(cluster, merger_split, names, min_cni_within) %>%
-  mutate_at("names", str_replace_all, "Lactobacillus", "L.") %>%
-  mutate_at("names", str_replace_all, "Pediococcus", "P.") %>%
-  mutate_at("names", str_replace_all, "Weissella", "W.") %>%
-  mutate_at("names", str_replace_all, "Leuconostoc", "Leuc.") %>%
-  arrange(merger_split, desc(min_cni_within)) %>%
-  write_csv(paste0(dout, "/table_1.csv"))
+  mutate_at("names", abbreviate) %>%
+  arrange(merger_split, desc(min_cni_within))
+splits_and_mergers %>% write_csv(paste0(dout_all, "/splits_and_mergers.csv"))
+splits_and_mergers %>% write_csv(paste0(dout_paper, "/table_1_splits_and_mergers.csv"))
 ```
 
 # Name genome clusters using 16S rRNA hits and NCBI labels
 
-Let's make an overview of clusters not named used the type genomes approach: 
+Let's make an overview of clusters not named used the type genomes approach; we call them "type 16S sequence (tss) clusters" because we will attempt to name them using 16S rRNA sequences of type species: 
 
 ```{r}
 clusters_tss <-
@@ -443,22 +457,21 @@ clusters_tss <-
   ungroup()
 ```
 
-Let's write table 2: 
+Let's write table 2; an overview of clusters we could not name using type genomes: 
 
 ```{r}
-clusters_tss %>%
+clusters_zerotypegenomes <-
+  clusters_tss %>%
   mutate_at(
     "certainty", factor, 
     levels = c("best guess", "new species", "unidentified")
   ) %>%
   arrange(certainty)  %>%
-  select(cluster, species_ncbi, n_16S, sixteen_s_hits, species)%>%
+  select(cluster, species_ncbi, n_16S, sixteen_s_hits, species) %>%
   mutate_all(str_replace_all, "_", " ") %>%
-  mutate_all(str_replace_all, "Lactobacillus", "L.") %>%
-  mutate_all(str_replace_all, "Pediococcus", "P.") %>%
-  mutate_all(str_replace_all, "Weissella", "W.") %>%
-  mutate_all(str_replace_all, "Leuconostoc", "Leuc.") %>%
-  write_csv(paste0(dout, "/table_2.csv"))
+  mutate_all(abbreviate)
+clusters_zerotypegenomes %>% write_csv(paste0(dout_all, "/clusters_zerotypegenomes.csv"))
+clusters_zerotypegenomes %>% write_csv(paste0(dout_paper, "/table_2_clusters_zerotypegenomes.csv"))
 ```
 
 Now to make a table with all cluster names that we found/chose:
@@ -468,7 +481,8 @@ clusters_all <-
   bind_rows(
     clusters_tgs,
     clusters_tss %>% select(cluster, species)
-  )
+  ) %>%
+  mutate(species_short = abbreviate(species))
 write_csv(clusters_all, paste0(parsed, "/clusters_all_named.csv"))
 ```
 
@@ -518,6 +532,7 @@ Bar chart:
     genomes_taxonomy %>%
     filter(! classified_ncbi) %>%
     count(species_cni) %>%
+    mutate_at("species_cni", abbreviate) %>%
     mutate(species_cni = fct_reorder(species_cni, n) %>% fct_rev()) %>%
     mutate(is_new_species = str_detect(species_cni, "species")) %>%
     mutate_at("is_new_species", if_else, "unknown", "known") %>% 
@@ -529,11 +544,13 @@ Bar chart:
     ylab("number of genomes") + 
     theme_bw() +
     theme(
-      axis.text.x = element_text(angle = 45, hjust = 1),
+      panel.grid.major = element_line(colour = "grey80"),
+      text = element_text(size = 8),
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
       plot.margin = unit(c(0, 1, 0, 2), "cm")
     )
 )
-ggsave(paste0(dout, "/reclassifications_unclassified.png"), units = "cm", width = 25, height = 20)
+ggsave(paste0(dout_all, "/reclassifications_unclassified.png"), units = "cm", width = 17.4, height = 12)
 ```
 
 ## Visualize reclassifications of genomes that are NOT unclassified in NCBI
@@ -585,9 +602,9 @@ genomes_to_plot <-
   genomes_taxonomy_classified %>%
   filter(! species_ncbi %in% !! boring_species) %>%
   mutate(is_new_species = str_detect(species_cni, "species")) %>%
-  mutate(species_cni = fct_reorder(species_cni, is_new_species) %>% fct_rev()) %>%
   mutate(species_cni_core = str_extract(species_cni, "^[^ ]+ [^ ]+")) %>%
-  mutate(reclassified = if_else(species_cni_core != species_ncbi, "yes", "no"))
+  mutate(reclassified = if_else(species_cni_core != species_ncbi, "yes", "no")) %>%
+  select(genome, species_cni, species_ncbi, reclassified, is_new_species)
 ```
 
 How many genomes do we reclassify? 
@@ -630,20 +647,28 @@ Scatterplot:
 (
   fig_reclassifications_classified <-
     genomes_to_plot %>%
-    ggplot(aes(x = species_ncbi, y = species_cni, col = reclassified)) +
-    geom_jitter(width = 0.2, height = 0.2, size = 0.5) +
+    mutate_at("species_cni", abbreviate) %>%
+    mutate_at("species_ncbi", abbreviate) %>%
+    mutate(species_cni = fct_reorder(species_cni, is_new_species)) %>%
+    count(species_cni, species_ncbi, reclassified) %>%
+    rename(n_genomes = n) %>%
+    ggplot(aes(x = species_ncbi, y = species_cni, col = reclassified, size = n_genomes)) +
+    geom_point() +
     scale_color_manual(values = c("yes" = "#e31a1c", "no" = "#1f77b4")) + 
+    scale_size(name = "number of genomes") +
     xlab("NCBI species") + ylab("genome cluster") + 
     theme_bw() +
     theme(
-      panel.grid.major = element_line(colour = "grey70"),
-      axis.text.x = element_text(angle = 45, hjust = 1)
+      panel.grid.major = element_line(colour = "grey80"),
+      text = element_text(size = 8),
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+      legend.position = "bottom"
     )
 )
-ggsave(paste0(dout, "/reclassifications_classified.png"), units = "cm", width = 25, height = 20)
+ggsave(paste0(dout_all, "/reclassifications_classified.png"), units = "cm", width = 17.4, height = 18)
 ```
 
-## Compose figure 4
+# Species taxonomy paper: compose figure 4
 
 Load necessary libraries to make figure panel and custom function to given figure letters: 
 
@@ -664,7 +689,7 @@ Panel:
 ggarrange(
   fig_reclassifications_unclassified %>% give_letter("A"), 
   fig_reclassifications_classified %>% give_letter("B"),
-  ncol = 1, nrow = 2, heights = c(1, 2)
+  ncol = 1, nrow = 2, heights = c(1, 2.5)
 )
-ggsave(paste0(dout, "/figure_4.jpg"), units = "cm", width = 35, height = 40)
+ggsave(paste0(dout_paper, "/figure_4_reclassifications.eps"), units = "cm", width = 17.4, height = 23)
 ```

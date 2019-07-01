@@ -1,7 +1,7 @@
 ---
 title: "Exploration of similarities and genome clusters"
 author: "Stijn Wittouck"
-date: "January 29, 2019"
+date: "June 19, 2019"
 output:
   html_document:
     depth: 2
@@ -24,14 +24,16 @@ Input/output directories:
 
 ```{r}
 din <- "input_v3"
-dout <- "results_v3"
+dout_all <- "results_v3/02_similarities_and_clusters"
+dout_paper <- "results_v3/paper_species_taxonomy"
 parsed <- "parsed_v3"
 ```
 
 Create output directories: 
 
 ```{r}
-if (! dir.exists(dout)) dir.create(dout, recursive = T)
+if (! dir.exists(dout_all)) dir.create(dout_all, recursive = T)
+if (! dir.exists(dout_paper)) dir.create(dout_paper, recursive = T)
 if (! dir.exists(parsed)) dir.create(parsed, recursive = T)
 ```
 
@@ -124,7 +126,7 @@ Plot cni density:
     plot_density(cni, cutoff_cni, "core nucleotide identity (CNI)") + 
     xlim(c(0.55, 1))
 )
-ggsave(paste0(dout, "/density_cni.png"), units = "cm", width = 15, height = 10)
+ggsave(paste0(dout_all, "/density_cni.png"), units = "cm", width = 16, height = 10)
 ```
 
 ## fastANIs
@@ -139,7 +141,7 @@ Density:
     plot_density(ani, cutoff_ani, "average nucleotide identity (ANI)") + 
     xlim(c(0.55, 1))
 )
-ggsave(paste0(dout, "/density_ani.png"), units = "cm", width = 15, height = 10)
+ggsave(paste0(dout_all, "/density_ani.png"), units = "cm", width = 16, height = 10)
 ```
 
 ## TETRAs
@@ -153,7 +155,7 @@ Density:
     filter(ani > 0.75) %>%
     plot_density(tetra, cutoff_tetra, "tetranucleotide correlation (TETRA)")
 )
-ggsave(paste0(dout, "/density_tetra.png"), units = "cm", width = 15, height = 10)
+ggsave(paste0(dout_all, "/density_tetra.png"), units = "cm", width = 16, height = 10)
 ```
 
 ## Compare genome similarity measures
@@ -177,7 +179,7 @@ Scatterplot of CNI vs ANI:
     xlab("core nucleotide identity (CNI)") +
     ylab("average nucleotide identity (ANI)")
 )
-ggsave(paste0(dout, "/scatter_cni_ani.png"), units = "cm", width = 15, height = 10)
+ggsave(paste0(dout_all, "/scatter_cni_ani.png"), units = "cm", width = 16, height = 16)
 ```
 
 # Exclusivity for various CNI cutoffs
@@ -193,12 +195,14 @@ exclusivity %>%
   ) %>%
   ggplot(aes(x = similarity, y = n_non_exclusive)) +
   geom_line() +
-  geom_point(aes(col = all_clusters_exclusive)) +
+  geom_point(aes(col = all_clusters_exclusive), size = 1) +
   scale_color_brewer(palette = "Paired") +
   theme_bw() +
   xlab("core nucleotide identity (CNI) cutoff") +
-  ylab("number of non-exclusive clusters")
-ggsave("results_v3/figure_S3_exclusivity.jpg", units = "cm", width = 20, height = 10)
+  ylab("number of non-exclusive clusters") +
+  theme(legend.position = "bottom")
+ggsave(paste0(dout_all, "/exclusivity.png"), units = "cm", width = 16, height = 10)
+ggsave(paste0(dout_paper, "/figure_S3_exclusivity.eps"), units = "cm", width = 17.4, height = 10)
 ```
 
 # Transitivity and exclusivity for 94% CNI cutoff
@@ -308,11 +312,15 @@ lgc$clusters %>%
   facet_wrap(~ n_genomes, scales = "free_y") +
   scale_color_brewer(palette = "Paired") +
   theme_bw() +
-  theme(legend.position = "bottom")
-ggsave(paste0(dout, "/figure_S2_clusters_cnis.jpg"), units = "cm", width = 20, height = 25)
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_text(size = 8)
+  )
+ggsave(paste0(dout_all, "/clusters_cnis.png"), units = "cm", width = 16, height = 25)
+ggsave(paste0(dout_paper, "/figure_S2_clusters_cnis.eps"), units = "cm", width = 17.4, height = 25)
 ```
 
-# Compose figure 2
+# Species taxonomy paper: compose figure 2
 
 ```{r}
 give_letter <- function(plot, letter) {
@@ -324,14 +332,34 @@ give_letter <- function(plot, letter) {
   
 }
 
+fig_density_cni2 <-
+  fig_density_cni + 
+  theme(
+    text = element_text(size = 8),
+    legend.position = "none"
+  )
+
+fig_density_ani2 <-
+  fig_density_ani + 
+  theme(
+    text = element_text(size = 8),
+    legend.position = "none"
+  )
+
+fig_scatter_cni_ani2 <-
+  fig_scatter_cni_ani + 
+  theme(
+    text = element_text(size = 8)
+  )
+
 ggarrange(
   ggarrange(
-    fig_density_cni %>% give_letter("A"), 
-    fig_density_ani %>% give_letter("B"), 
+    fig_density_cni2 %>% give_letter("A"), 
+    fig_density_ani2 %>% give_letter("B"), 
     ncol = 1, nrow = 2
   ),
-  fig_scatter_cni_ani %>% give_letter("C"),
+  fig_scatter_cni_ani2 %>% give_letter("C"),
   nrow = 1, ncol = 2
 )
-ggsave(paste0(dout, "/figure_2.jpg"), units = "cm", width = 40, height = 20)
+ggsave(paste0(dout_paper, "/figure_2_similarities.tiff"), units = "cm", width = 17.4, height = 9)
 ```
