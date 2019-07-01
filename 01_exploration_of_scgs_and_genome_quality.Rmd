@@ -1,7 +1,7 @@
 ---
 title: "Exploration of single-copy core genes and genome quality"
 author: "Stijn Wittouck"
-date: "January 29, 2019"
+date: "June 19, 2019"
 output:
   html_document:
     depth: 2
@@ -24,14 +24,16 @@ Input/output directories:
 
 ```{r}
 din <- "input_v3"
-dout <- "results_v3"
+dout_all <- "results_v3/01_scgs_and_genome_quality"
+dout_paper <- "results_v3/paper_species_taxonomy"
 parsed <- "parsed_v3"
 ```
 
 Create output directories: 
 
 ```{r}
-if (! dir.exists(dout)) dir.create(dout, recursive = T)
+if (! dir.exists(dout_all)) dir.create(dout_all, recursive = T)
+if (! dir.exists(dout_paper)) dir.create(dout_paper, recursive = T)
 if (! dir.exists(parsed)) dir.create(parsed, recursive = T)
 ```
 
@@ -96,7 +98,7 @@ genes %>%
   facet_wrap(~ profile, scales = "free") + 
   scale_color_brewer(palette = "Paired") + 
   theme_bw() 
-ggsave(paste0(dout, "/example_profiles_scores.png"), units = "cm", width = 30, height = 20)
+ggsave(paste0(dout_all, "/example_profiles_scores.png"), units = "cm", width = 30, height = 20)
 ```
 
 Same plot, but with length-corrected scores:  
@@ -114,7 +116,7 @@ genes %>%
   facet_wrap(~ profile, scales = "free") + 
   scale_color_brewer(palette = "Paired") + 
   theme_bw() 
-ggsave(paste0(dout, "/example_profiles_scores_corrected.png"), units = "cm", width = 30, height = 20)
+ggsave(paste0(dout_all, "/example_profiles_scores_corrected.png"), units = "cm", width = 30, height = 20)
 ```
 
 Score densities per profile (important for the interpretation: we show a separate density of best-copies and non-best-copies per profile, but both densities are automatically normalized to have the same area-under-the-curve by ggplot!!): 
@@ -129,7 +131,7 @@ genes %>%
     aes(xintercept = gene_cutoff), col = "black"
   ) + 
   facet_wrap(~ profile, scales = "free")
-ggsave(paste0(dout, "/example_profiles_scores_densities.png"), units = "cm", width = 30, height = 20)
+ggsave(paste0(dout_all, "/example_profiles_scores_densities.png"), units = "cm", width = 30, height = 20)
 ```
 
 Experimental visulization of cumulative number of genes and number of unique genomes as the score increases: 
@@ -146,6 +148,7 @@ genes %>%
   geom_line() + 
   geom_point(size = 0.1) + 
   facet_wrap(~ profile, scales = "free")
+ggsave(paste0(dout_all, "/example_profiles_genes_vs_genomes.png"), units = "cm", width = 30, height = 20)
 ```
 
 # Inspection of candidate SCGs
@@ -175,8 +178,10 @@ profiles %>%
   geom_vline(xintercept = profiles %>% filter(single_copy >= 0.95) %>% nrow(), color = "grey", lty = 2) + 
   scale_fill_brewer(palette = "Paired") + 
   scale_color_brewer(palette = "Paired") + 
-  theme_bw()
-ggsave(paste0(dout, "/figure_S1_profile_selection.jpeg"), units = "cm", width = 30, height = 20)
+  theme_bw() +
+  theme(legend.position = "bottom")
+ggsave(paste0(dout_all, "/profile_selection.png"), units = "cm", width = 17.4, height = 12)
+ggsave(paste0(dout_paper, "/figure_S1_profile_selection.eps"), units = "cm", width = 17.4, height = 12)
 ```
 
 Number of profiles that pass the 95% single-copy presence cutoff:
@@ -203,7 +208,7 @@ genes %>%
     aes(xintercept = gene_cutoff), col = "black"
   ) + 
   facet_wrap(~ profile, scales = "free")
-ggsave(paste0(dout, "/example_passing_profiles_scores_densities.png"), units = "cm", width = 30, height = 20)
+ggsave(paste0(dout_all, "/example_passing_profiles_scores_densities.png"), units = "cm", width = 30, height = 20)
 ```
 
 # Selection of genomes
@@ -225,7 +230,7 @@ Visualize density of the completeness values of the genomes:
       axis.text.y = element_blank()
     )
 )
-ggsave(paste0(dout, "/genomes_completeness.png"), units = "cm", width = 20, height = 15)
+ggsave(paste0(dout_all, "/genomes_completeness.png"), units = "cm", width = 16, height = 10)
 ```
 
 Visualize density of the redundancy values of the genomes:
@@ -245,7 +250,7 @@ Visualize density of the redundancy values of the genomes:
       axis.text.y = element_blank()
     )
 )
-ggsave(paste0(dout, "/genomes_redundancy.png"), units = "cm", width = 20, height = 15)
+ggsave(paste0(dout_all, "/genomes_redundancy.png"), units = "cm", width = 16, height = 10)
 ```
 
 Completeness vs redundancy scatterplot: 
@@ -256,9 +261,10 @@ genomes %>%
   geom_point(size = 1) +
   xlim(c(0, 1)) + ylim(c(0, 1)) + 
   theme_bw()
+ggsave(paste0(dout_all, "/genomes_completeness_vs_redunancy.png"), units = "cm", width = 16, height = 16)
 ```
 
-# Compose figure 1
+# Species taxonomy paper: compose figure 1
 
 ```{r}
 give_letter <- function(plot, letter) {
@@ -275,5 +281,5 @@ ggarrange(
   fig_genomes_redundancy %>% give_letter("B"), 
   nrow = 2, ncol = 1
 )
-ggsave(paste0(dout, "/figure_1.jpg"), units = "cm", width = 20, height = 10)
+ggsave(paste0(dout_paper, "/figure_1_genome_quality.eps"), units = "cm", width = 17.4, height = 10)
 ```
