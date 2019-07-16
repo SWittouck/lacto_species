@@ -1,7 +1,7 @@
 ---
 title: "Exploration of single-copy core genes and genome quality"
 author: "Stijn Wittouck"
-date: "June 19, 2019"
+date: "July 16, 2019"
 output:
   html_document:
     depth: 2
@@ -52,11 +52,13 @@ We need the following information:
 * A table with genes that show sequence similarity to candidate SCGs (and thus might belong to the candidate SCG, which is a gene family). This gene table includes the score of the gene to the SCG, the start and end positions in the profile HMM of the alignment and the genome of the gene. This table has already been pre-filtered to only contain the best-scoring candidate SCG per gene. 
 * A table of the candidate SCGs (profiles), with their score cutoffs, the number of genomes they were found in in a single copy and the number of genomes they were found in in multiple copies. 
 * A table of the genomes with their SCG-based quality measures: completeness and redundancy. 
+* A table of the genomes with their statistics from the Genome Taxonomy Database (GTDB) of Parks et al.
 
 ```{r}
 genes <- read_csv(paste0(din, "/score_table.csv.zip"))
 profiles <- read_csv(paste0(din, "/candidate_scg_table.csv"))
 genomes <- read_csv(paste0(din, "/genome_table.csv"))
+genomes_parks <- read_csv(paste0(din, "/genomes_parks.csv"))
 ```
 
 # Inspection of hmmer cutoffs
@@ -261,8 +263,76 @@ genomes %>%
   geom_point(size = 1) +
   xlim(c(0, 1)) + ylim(c(0, 1)) + 
   theme_bw()
-ggsave(paste0(dout_all, "/genomes_completeness_vs_redunancy.png"), units = "cm", width = 16, height = 16)
+ggsave(
+  paste0(dout_all, "/genomes_completeness_vs_redunancy.png"), 
+  units = "cm", width = 16, height = 16
+)
 ```
+
+# Comparison of legen quality control with checkm quality control
+
+Let's prepare a table we can use to compare the completeness and redundancy/contamination of the genomes as estimated by our legen pipeline vs the CheckM tool: 
+
+```{r}
+genomes_quality <-
+  genomes %>%
+  left_join(genomes_parks, by = c("genome" = "accession")) %>%
+  select(
+    legen_completeness = completeness, legen_redundancy = redundancy,
+    checkm_completeness, checkm_contamination, genome
+  ) %>%
+  mutate_at(vars(contains("checkm")), ~ . / 100) 
+```
+
+We can now compare completeness estimates using a scatterplot: 
+
+```{r}
+genomes_quality %>%
+  ggplot(aes(x = 1 - legen_completeness, y = 1 - checkm_completeness)) +
+  geom_jitter(alpha = 0.1) +
+  scale_x_log10(limits = c(0.001, 1)) +
+  scale_y_log10(limits = c(0.001, 1)) +
+  theme_bw()
+ggsave(
+  paste0(dout_all, "/genomes_checkm_completeness.png"), 
+  units = "cm", width = 16, height = 16
+)
+```
+
+A first observation is that many of the genomes in our dataset, 402 of them, are not represented in the GTDB. For these, we were not able to recover CheckM genome quality measures. For the ones that are represented in GTDB, the correlation between the completeness as estimated by our pipeline and CheckM is there but seems relatively weak. For high completeness values, between 0.99 and 1.00, the correlation seems even nonexistent. Fortunately though, we are of course mainly interested in identifying genomes of poor quality so this isn't a huge problem. 
+
+We can also compare redunancy/contamination (these concepts are similar) estimates: 
+
+```{r}
+genomes_quality %>%
+  ggplot(aes(x = legen_redundancy, y = checkm_contamination)) +
+  geom_jitter(alpha = 0.1) +
+  scale_x_log10(limits = c(0.001, 1)) +
+  scale_y_log10(limits = c(0.001, 1)) +
+  theme_bw()
+ggsave(
+  paste0(dout_all, "/genomes_checkm_redundancy.png"), 
+  units = "cm", width = 16, height = 16
+)
+```
+
+We can see a similar pattern here: a relatively weak correlation, epecially for low contamination values (under ~ 0.03). 
+
+Let's see what would happen if we select our genomes based on CheckM instead of our own pipeline, using the same cutoffs that we used:
+
+```{r}
+genomes_quality %>%
+  mutate(
+    legen_passes_qc = legen_completeness > 0.90 & legen_redundancy < 0.10,
+    checkm_passes_qc = checkm_completeness > 0.90 & checkm_contamination < 0.10
+  ) %>%
+  count(legen_passes_qc, checkm_passes_qc) %>%
+  filter(! is.na(checkm_passes_qc))
+```
+
+If we had used CheckM, we would have included 12 genomes that we now excluded, and excluded 15 genomes that we now included. 33 genomes are excluded by both approaches and 2096 included by both approaches. These numbers are of course only for the genomes that had CheckM values available. 
+
+Conclusion: our approach and CheckM clearly yield different results, which is interesting, but the correlation is definitely there and switching to CheckM would not lead to radically different decisions in terms of which genomes to throw away. 
 
 # Species taxonomy paper: compose figure 1
 

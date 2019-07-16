@@ -2,9 +2,15 @@ library(tidyverse)
 
 din_input <- "input_v3"
 din_parsed <- "parsed_v3"
-dout <- "results_v3"
+dout <- "results_v3/paper_species_taxonomy"
 
-# genomes 
+# table S1 - genomes
+
+genomes_parks <-
+  read_csv(paste0(din_input, "/genomes_parks.csv")) %>%
+  select(
+    genome = accession, checkm_completeness, checkm_contamination, gtdb_species
+  )
 
 list(
   genomes_quality = paste0(din_input, "/genome_table.csv"),
@@ -13,19 +19,29 @@ list(
 ) %>%
   map(read_csv) %>%
   reduce(full_join) %>%
-  select(genome, completeness, redundancy, ncbi_species = species, cluster, species, isolation_source) %>%
+  select(
+    genome, legen_completeness = completeness, legen_redundancy = redundancy, 
+    legen_cluster = cluster, 
+    ncbi_species = species, ncbi_isolation_source = isolation_source
+  ) %>%
   left_join(
     paste0(din_parsed, "/clusters_all_named.csv") %>%
       read_csv() %>%
-      select(cluster, species)
+      select(legen_cluster = cluster, legen_species = species)
+  ) %>%
+  left_join(genomes_parks) %>%
+  select(
+    genome, legen_completeness, legen_redundancy, legen_cluster, legen_species,
+    ncbi_species, ncbi_isolation_source, checkm_completeness, 
+    checkm_contamination, gtdb_species
   ) %>%
   write_csv(paste0(dout, "/table_S1_genomes.csv"))
 
-# type genomes 
+# table S2 - type genomes 
 
 file.copy(paste0(din_input, "/lgc_genomes_type.csv"), paste0(dout, "/table_S2_type_genomes.csv"))
 
-# clusters 
+# table S3 - clusters
 
 list(
   clusters_named = paste0(din_parsed, "/clusters_all_named.csv"),
