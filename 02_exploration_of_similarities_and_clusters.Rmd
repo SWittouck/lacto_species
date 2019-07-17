@@ -1,7 +1,7 @@
 ---
 title: "Exploration of similarities and genome clusters"
 author: "Stijn Wittouck"
-date: "June 19, 2019"
+date: "July 17, 2019"
 output:
   html_document:
     depth: 2
@@ -361,5 +361,12 @@ ggarrange(
   fig_scatter_cni_ani2 %>% give_letter("C"),
   nrow = 1, ncol = 2
 )
-ggsave(paste0(dout_paper, "/figure_2_similarities.tiff"), units = "cm", width = 17.4, height = 9)
+ggsave(
+  paste0(dout_paper, "/figure_2_similarities.tiff"), 
+  units = "cm", width = 17.4, height = 9
+)
+ggsave(
+  paste0(dout_paper, "/figure_2_similarities.png"), 
+  units = "cm", width = 17.4, height = 9
+)
 ```
