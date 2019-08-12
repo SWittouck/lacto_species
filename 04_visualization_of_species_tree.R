@@ -62,7 +62,7 @@ phylogroups <-
   tribble(
     ~ species_type, ~ species_peripheral, ~ phylogroup,
     "L. floricola", "L. floricola", "floricola group",
-    "L. amylophilus", "L. amylotrophicus", "amylophilus group",
+    "L. amylophilus", "L. amylophilus", "amylophilus group",
     "L. delbrueckii", "L. iners", "delbrueckii group",
     "L. mellifer", "L. mellis", "mellifer group",
     "L. alimentarius", "L. terrae", "alimentarius group",
