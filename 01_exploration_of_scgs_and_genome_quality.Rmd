@@ -173,17 +173,32 @@ Visualize single- and multi-copy presence of candidate SCGs:
 profiles %>%
   arrange(- single_copy_presence) %>%
   mutate(profile = 1:n()) %>%
-  gather(value = "percentage_of_genomes", key = "copy_number", single_copy, multi_copy) %>%
-  ggplot(aes(x = profile, y = percentage_of_genomes, fill = copy_number, col = copy_number)) +
+  gather(
+    value = "percentage_of_genomes", key = "copy_number", single_copy, 
+    multi_copy
+  ) %>%
+  ggplot(aes(
+    x = profile, y = percentage_of_genomes, fill = copy_number, 
+    col = copy_number
+  )) +
   geom_col() + 
   geom_hline(yintercept = 0.95) + 
-  geom_vline(xintercept = profiles %>% filter(single_copy >= 0.95) %>% nrow(), color = "grey", lty = 2) + 
+  geom_vline(
+    xintercept = profiles %>% filter(single_copy >= 0.95) %>% nrow(), 
+    color = "grey", lty = 2
+  ) + 
   scale_fill_brewer(palette = "Paired") + 
   scale_color_brewer(palette = "Paired") + 
   theme_bw() +
   theme(legend.position = "bottom")
-ggsave(paste0(dout_all, "/profile_selection.png"), units = "cm", width = 17.4, height = 12)
-ggsave(paste0(dout_paper, "/figure_S1_profile_selection.eps"), units = "cm", width = 17.4, height = 12)
+ggsave(
+  paste0(dout_all, "/profile_selection.png"), units = "cm", width = 17.4, 
+  height = 12
+)
+ggsave(
+  paste0(dout_paper, "/figure_S1_profile_selection.pdf"), units = "cm", 
+  width = 17.4, height = 12
+)
 ```
 
 Number of profiles that pass the 95% single-copy presence cutoff:
@@ -352,11 +367,11 @@ ggarrange(
   nrow = 2, ncol = 1
 )
 ggsave(
-  paste0(dout_paper, "/figure_1_genome_quality.eps"), 
+  paste0(dout_paper, "/figure_1_genome_quality.png"), 
   units = "cm", width = 17.4, height = 10
 )
 ggsave(
-  paste0(dout_paper, "/figure_1_genome_quality.png"), 
+  paste0(dout_paper, "/figure_1_genome_quality.pdf"), 
   units = "cm", width = 17.4, height = 10
 )
 ```

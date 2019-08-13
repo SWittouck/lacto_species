@@ -128,12 +128,13 @@ tree %>%
     "normal" = "#a6cee3", "phylogroup" = "#1f78b4", 
     "new" = "#ff7f00", "unidentified" = "#33a02c"
   )) +
-  xlim(c(0, 3.1)) 
-ggsave(
-  paste0(dout_paper, "/figure_3_tree.eps"), 
-  bg = "white", units = "cm", width = 17.4, height = 17.4, fonts = c("sans")
-)
+  xlim(c(0, 3.076)) 
 ggsave(
   paste0(dout_paper, "/figure_3_tree.png"), 
-  bg = "white", units = "cm", width = 17.4, height = 17.4, fonts = c("sans")
+  bg = "white", units = "cm", width = 17.4, height = 17.4
+)
+ggsave(
+  paste0(dout_paper, "/figure_3_tree.pdf"), 
+  bg = "white", units = "cm", width = 17.4, height = 17.4,
+  fonts = "sans"
 )
