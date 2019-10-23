@@ -1,0 +1,13 @@
+cluster,merger_split,names
+cluster 135,merger,"L. amylotrophicus, L. amylophilus"
+cluster 141,merger,"L. kimchii, L. bobalius"
+cluster 149,split,L. aviarius subsp. aviarius
+cluster 173,merger,"L. micheneri, L. timberlakei, L. kosoi"
+cluster 178,merger,"W. jogaejeotgali, W. thailandensis"
+cluster 179,merger,"L. fructivorans, L. homohiochii"
+cluster 218,merger,"P. acidilactici, P. lolii"
+cluster 225,merger,"Leuc. gelidum subsp. gelidum, Leuc. inhae, Leuc. gasicomitatum"
+cluster 233,merger,"L. gasseri, L. paragasseri"
+cluster 236,merger,"Leuc. mesenteroides subsp. mesenteroides, Leuc. mesenteroides subsp. cremoris, Leuc. mesenteroides subsp. dextranicum, Leuc. mesenteroides subsp. jonggajibkimchii, Leuc. suionicum"
+cluster 238,merger,"L. casei subsp. casei, L. zeae"
+cluster 64,split,L. aviarius subsp. araffinosus

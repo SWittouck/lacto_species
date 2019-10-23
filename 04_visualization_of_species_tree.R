@@ -15,13 +15,13 @@ if (! dir.exists(dout_paper)) dir.create(dout_paper, recursive = T)
 
 # Read necessary files
 tree <-
-  paste0(din, "/RAxML_bipartitions.lgc") %>%
+  paste0(din, "/representatives_v3_2/RAxML_bipartitions.lgc") %>%
   ggtree::read.tree() 
 genomes_clusters <- 
-  paste0(din, "/genomes_clusters.csv") %>%
+  paste0(din, "/genome_clusters/genomes_clusters.csv") %>%
   read_csv()
 clusters <-
-  paste0(parsed, "/clusters_all_named.csv") %>%
+  paste0(din, "/taxonomy/clusters_all_named.csv") %>%
   read_csv() 
 
 # Add cluster information to the genomes table
@@ -130,11 +130,10 @@ tree %>%
   )) +
   xlim(c(0, 3.076)) 
 ggsave(
-  paste0(dout_paper, "/figure_3_tree.png"), 
+  paste0(dout_paper, "/figure_3_tree.tiff"), 
   bg = "white", units = "cm", width = 17.4, height = 17.4
 )
 ggsave(
   paste0(dout_paper, "/figure_3_tree.pdf"), 
-  bg = "white", units = "cm", width = 17.4, height = 17.4,
-  fonts = "sans"
+  bg = "white", units = "cm", width = 17.4, height = 17.4
 )

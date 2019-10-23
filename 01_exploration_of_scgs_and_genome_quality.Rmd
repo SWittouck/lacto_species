@@ -367,7 +367,7 @@ ggarrange(
   nrow = 2, ncol = 1
 )
 ggsave(
-  paste0(dout_paper, "/figure_1_genome_quality.png"), 
+  paste0(dout_paper, "/figure_1_genome_quality.tiff"), 
   units = "cm", width = 17.4, height = 10
 )
 ggsave(

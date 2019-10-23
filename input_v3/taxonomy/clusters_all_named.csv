@@ -1,0 +1,240 @@
+cluster,species,species_short
+cluster 239,Lactobacillus rhamnosus,L. rhamnosus
+cluster 199,Lactobacillus reuteri,L. reuteri
+cluster 236,Leuconostoc mesenteroides,Leuc. mesenteroides
+cluster 233,Lactobacillus gasseri,L. gasseri
+cluster 230,Lactobacillus delbrueckii,L. delbrueckii
+cluster 228,Lactobacillus plantarum,L. plantarum
+cluster 218,Pediococcus acidilactici,P. acidilactici
+cluster 6,Leuconostoc kimchii,Leuc. kimchii
+cluster 182,Lactobacillus johnsonii,L. johnsonii
+cluster 45,Lactobacillus hilgardii,L. hilgardii
+cluster 229,Lactobacillus fermentum,L. fermentum
+cluster 200,Lactobacillus paracasei,L. paracasei
+cluster 201,Lactobacillus vaginalis,L. vaginalis
+cluster 87,Lactobacillus ultunensis,L. ultunensis
+cluster 204,Lactobacillus salivarius,L. salivarius
+cluster 162,Lactobacillus iners,L. iners
+cluster 191,Lactobacillus helveticus,L. helveticus
+cluster 66,Lactobacillus antri,L. antri
+cluster 148,Weissella paramesenteroides,W. paramesenteroides
+cluster 225,Leuconostoc gelidum,Leuc. gelidum
+cluster 5,Leuconostoc fallax,Leuc. fallax
+cluster 152,Lactobacillus coryniformis,L. coryniformis
+cluster 139,Lactobacillus amylolyticus,L. amylolyticus
+cluster 153,Lactobacillus farciminis,L. farciminis
+cluster 163,Lactobacillus animalis,L. animalis
+cluster 179,Lactobacillus fructivorans,L. fructivorans
+cluster 115,Fructobacillus fructosus,F. fructosus
+cluster 131,Pediococcus claussenii,P. claussenii
+cluster 65,Lactobacillus vini,L. vini
+cluster 133,Oenococcus kitaharae,O. kitaharae
+cluster 89,Lactobacillus malefermentans,L. malefermentans
+cluster 34,Lactobacillus versmoldensis,L. versmoldensis
+cluster 42,Lactobacillus suebicus,L. suebicus
+cluster 58,Lactobacillus rossiae,L. rossiae
+cluster 27,Lactobacillus pasteurii,L. pasteurii
+cluster 93,Lactobacillus gigeriorum,L. gigeriorum
+cluster 81,Lactobacillus hominis,L. hominis
+cluster 189,Oenococcus oeni,O. oeni
+cluster 49,Lactobacillus equicursoris,L. equicursoris
+cluster 120,Lactobacillus pobuzihii,L. pobuzihii
+cluster 30,Lactobacillus otakiensis,L. otakiensis
+cluster 70,Lactobacillus psittaci,L. psittaci
+cluster 128,Lactobacillus harbinensis,L. harbinensis
+cluster 59,Lactobacillus saerimneri,L. saerimneri
+cluster 117,Lactobacillus ceti,L. ceti
+cluster 101,Weissella halotolerans,W. halotolerans
+cluster 8,Lactobacillus shenzhenensis,L. shenzhenensis
+cluster 193,Lactobacillus acidophilus,L. acidophilus
+cluster 237,Lactobacillus brevis,L. brevis
+cluster 9,Lactobacillus fabifermentans,L. fabifermentans
+cluster 98,Lactobacillus sucicola,L. sucicola
+cluster 150,Lactobacillus gallinarum,L. gallinarum
+cluster 88,Lactobacillus composti,L. composti
+cluster 74,Lactobacillus farraginis,L. farraginis
+cluster 55,Lactobacillus paralimentarius,L. paralimentarius
+cluster 209,Lactobacillus kefiranofaciens,L. kefiranofaciens
+cluster 43,Lactobacillus hamsteri,L. hamsteri
+cluster 231,Lactobacillus sakei,L. sakei
+cluster 39,Lactobacillus kitasatonis,L. kitasatonis
+cluster 238,Lactobacillus casei,L. casei
+cluster 38,Lactobacillus apodemi,L. apodemi
+cluster 227,Lactobacillus fuchuensis,L. fuchuensis
+cluster 124,Lactobacillus nodensis,L. nodensis
+cluster 40,Lactobacillus hayakitensis,L. hayakitensis
+cluster 71,Lactobacillus equi,L. equi
+cluster 10,Weissella oryzae,W. oryzae
+cluster 26,Lactobacillus oryzae,L. oryzae
+cluster 13,Lactobacillus curieae,L. curieae
+cluster 14,Lactobacillus heilongjiangensis,L. heilongjiangensis
+cluster 111,Lactobacillus hokkaidonensis,L. hokkaidonensis
+cluster 15,Lactobacillus wasatchensis,L. wasatchensis
+cluster 197,Lactobacillus kullabergensis,L. kullabergensis
+cluster 195,Lactobacillus helsingborgensis,L. helsingborgensis
+cluster 18,Lactobacillus mellifer,L. mellifer
+cluster 198,Lactobacillus melliventris,L. melliventris
+cluster 17,Lactobacillus kimbladii,L. kimbladii
+cluster 16,Lactobacillus mellis,L. mellis
+cluster 215,Lactobacillus ruminis,L. ruminis
+cluster 19,Lactobacillus herbarum,L. herbarum
+cluster 76,Lactobacillus panis,L. panis
+cluster 20,Fructobacillus ficulneus,F. ficulneus
+cluster 210,Fructobacillus pseudoficulneus,F. pseudoficulneus
+cluster 21,Fructobacillus tropaeoli,F. tropaeoli
+cluster 24,Lactobacillus gorillae,L. gorillae
+cluster 136,Lactobacillus kunkeei,L. kunkeei
+cluster 23,Lactobacillus apinorum,L. apinorum
+cluster 130,Lactobacillus paracollinoides,L. paracollinoides
+cluster 220,Lactobacillus lindneri,L. lindneri
+cluster 141,Lactobacillus kimchii,L. kimchii
+cluster 94,Lactobacillus similis,L. similis
+cluster 83,Lactobacillus sharpeae,L. sharpeae
+cluster 29,Lactobacillus kisonensis,L. kisonensis
+cluster 122,Lactobacillus equigenerosi,L. equigenerosi
+cluster 75,Lactobacillus parafarraginis,L. parafarraginis
+cluster 47,Lactobacillus nasuensis,L. nasuensis
+cluster 96,Lactobacillus camelliae,L. camelliae
+cluster 123,Lactobacillus pantheris,L. pantheris
+cluster 84,Lactobacillus rapi,L. rapi
+cluster 143,Lactobacillus silagei,L. silagei
+cluster 52,Lactobacillus odoratitofui,L. odoratitofui
+cluster 82,Lactobacillus thailandensis,L. thailandensis
+cluster 126,Lactobacillus collinoides,L. collinoides
+cluster 92,Lactobacillus senioris,L. senioris
+cluster 60,Lactobacillus satsumensis,L. satsumensis
+cluster 110,Lactobacillus saniviri,L. saniviri
+cluster 203,Lactobacillus pentosus,L. pentosus
+cluster 222,Lactobacillus zymae,L. zymae
+cluster 112,Lactobacillus parabrevis,L. parabrevis
+cluster 28,Lactobacillus kimchicus,L. kimchicus
+cluster 183,Lactobacillus amylovorus,L. amylovorus
+cluster 234,Lactobacillus crispatus,L. crispatus
+cluster 202,Lactobacillus oligofermentans,L. oligofermentans
+cluster 32,Lactobacillus diolivorans,L. diolivorans
+cluster 33,Lactobacillus mindensis,L. mindensis
+cluster 31,Lactobacillus nagelii,L. nagelii
+cluster 41,Lactobacillus oris,L. oris
+cluster 37,Lactobacillus hammesii,L. hammesii
+cluster 36,Lactobacillus gastricus,L. gastricus
+cluster 35,Lactobacillus kalixensis,L. kalixensis
+cluster 48,Lactobacillus buchneri,L. buchneri
+cluster 223,Lactobacillus algidus,L. algidus
+cluster 46,Lactobacillus tucceti,L. tucceti
+cluster 137,Lactobacillus crustorum,L. crustorum
+cluster 44,Lactobacillus bifermentans,L. bifermentans
+cluster 54,Lactobacillus uvarum,L. uvarum
+cluster 53,Lactobacillus capillatus,L. capillatus
+cluster 50,Lactobacillus acidifarinae,L. acidifarinae
+cluster 51,Lactobacillus hordei,L. hordei
+cluster 172,Lactobacillus namurensis,L. namurensis
+cluster 159,Lactobacillus alimentarius,L. alimentarius
+cluster 57,Lactobacillus spicheri,L. spicheri
+cluster 56,Lactobacillus manihotivorans,L. manihotivorans
+cluster 64,Lactobacillus araffinosus,L. araffinosus
+cluster 62,Lactobacillus intestinalis,L. intestinalis
+cluster 63,Lactobacillus pontis,L. pontis
+cluster 140,Lactobacillus parabuchneri,L. parabuchneri
+cluster 61,Lactobacillus ghanensis,L. ghanensis
+cluster 134,Lactobacillus sunkii,L. sunkii
+cluster 68,Lactobacillus koreensis,L. koreensis
+cluster 67,Lactobacillus futsaii,L. futsaii
+cluster 221,Lactobacillus curvatus,L. curvatus
+cluster 72,Lactobacillus nantensis,L. nantensis
+cluster 107,Lactobacillus ingluviei,L. ingluviei
+cluster 216,Lactobacillus acidipiscis,L. acidipiscis
+cluster 194,Lactobacillus paraplantarum,L. paraplantarum
+cluster 69,Lactobacillus perolens,L. perolens
+cluster 224,Lactobacillus mucosae,L. mucosae
+cluster 188,Lactobacillus murinus,L. murinus
+cluster 77,Lactobacillus ozensis,L. ozensis
+cluster 73,Lactobacillus concavus,L. concavus
+cluster 158,Lactobacillus agilis,L. agilis
+cluster 135,Lactobacillus amylophilus,L. amylophilus
+cluster 80,Lactobacillus brantae,L. brantae
+cluster 79,Lactobacillus dextrinicus,L. dextrinicus
+cluster 180,Lactobacillus sanfranciscensis,L. sanfranciscensis
+cluster 78,Lactobacillus frumenti,L. frumenti
+cluster 90,Lactobacillus graminis,L. graminis
+cluster 149,Lactobacillus aviarius,L. aviarius
+cluster 86,Lactobacillus vaccinostercus,L. vaccinostercus
+cluster 85,Lactobacillus oeni,L. oeni
+cluster 95,Lactobacillus floricola,L. floricola
+cluster 105,Lactobacillus mali,L. mali
+cluster 91,Lactobacillus rennini,L. rennini
+cluster 160,Lactobacillus jensenii,L. jensenii
+cluster 106,Lactobacillus selangorensis,L. selangorensis
+cluster 127,Lactobacillus acetotolerans,L. acetotolerans
+cluster 100,Lactobacillus aquaticus,L. aquaticus
+cluster 99,Lactobacillus cacaonum,L. cacaonum
+cluster 145,Lactobacillus taiwanensis,L. taiwanensis
+cluster 125,Lactobacillus senmaizukei,L. senmaizukei
+cluster 97,Lactobacillus florum,L. florum
+cluster 103,Pediococcus stilesii,P. stilesii
+cluster 102,Lactobacillus secaliphilus,L. secaliphilus
+cluster 219,Weissella confusa,W. confusa
+cluster 121,Weissella viridescens,W. viridescens
+cluster 235,Pediococcus pentosaceus,P. pentosaceus
+cluster 156,Pediococcus damnosus,P. damnosus
+cluster 104,Lactobacillus paucivorans,L. paucivorans
+cluster 113,Pediococcus argentinicus,P. argentinicus
+cluster 109,Lactobacillus siliginis,L. siliginis
+cluster 108,Weissella minor,W. minor
+cluster 212,Pediococcus ethanolidurans,P. ethanolidurans
+cluster 119,Lactobacillus xiangfangensis,L. xiangfangensis
+cluster 118,Lactobacillus kimchiensis,L. kimchiensis
+cluster 170,Pediococcus inopinatus,P. inopinatus
+cluster 116,Weissella kandleri,W. kandleri
+cluster 114,Pediococcus cellicola,P. cellicola
+cluster 138,Lactobacillus allii,L. allii
+cluster 146,Lactobacillus parakefiri,L. parakefiri
+cluster 142,Lactobacillus mixtipabuli,L. mixtipabuli
+cluster 144,Lactobacillus pentosiphilus,L. pentosiphilus
+cluster 151,Lactobacillus silagincola,L. silagincola
+cluster 205,Lactobacillus apis,L. apis
+cluster 214,Lactobacillus bombicola,L. bombicola
+cluster 171,Lactobacillus quenuiae,L. quenuiae
+cluster 173,Lactobacillus timberlakei,L. timberlakei
+cluster 174,Lactobacillus bambusae,L. bambusae
+cluster 178,Weissella thailandensis,W. thailandensis
+cluster 177,Weissella soli,W. soli
+cluster 181,Lactobacillus rodentium,L. rodentium
+cluster 186,Lactobacillus formosensis,L. formosensis
+cluster 213,Fructobacillus durionis,F. durionis
+cluster 208,Convivina intestini,C. intestini
+cluster 22,Lactobacillus ginsenosidimutans,L. ginsenosidimutans
+cluster 187,Lactobacillus musae,L. musae
+cluster 232,Lactobacillus raoultii,L. raoultii
+cluster 154,Lactobacillus terrae,L. terrae
+cluster 226,Lactobacillus timonensis,L. timonensis
+cluster 161,Lactobacillus nuruki,L. nuruki
+cluster 147,Leuconostoc lactis,Leuc. lactis
+cluster 155,Lactobacillus backii (?),L. backii (?)
+cluster 185,Lactobacillus bombi (?),L. bombi (?)
+cluster 4,Lactobacillus coleohominis (?),L. coleohominis (?)
+cluster 175,Lactobacillus kefiri (?),L. kefiri (?)
+cluster 165,Lactobacillus panisapium (?),L. panisapium (?)
+cluster 7,Leuconostoc carnosum (?),Leuc. carnosum (?)
+cluster 157,Leuconostoc citreum (?),Leuc. citreum (?)
+cluster 176,Leuconostoc pseudomesenteroides (?),Leuc. pseudomesent. (?)
+cluster 129,Pediococcus parvulus (?),P. parvulus (?)
+cluster 206,Unidentified species 1,Unident. species 1
+cluster 12,Weissella ceti (?),W. ceti (?)
+cluster 184,Weissella cibaria (?),W. cibaria (?)
+cluster 11,Weissella hellenica (?),W. hellenica (?)
+cluster 207,Unidentified species 2,Unident. species 2
+cluster 167,Weissella koreensis (?),W. koreensis (?)
+cluster 1,Unidentified species 3,Unident. species 3
+cluster 132,Unidentified species 4,Unident. species 4
+cluster 164,New species 1,New species 1
+cluster 166,New species 2,New species 2
+cluster 168,New species 3,New species 3
+cluster 169,New species 4,New species 4
+cluster 190,Unidentified species 5,Unident. species 5
+cluster 192,New species 5,New species 5
+cluster 196,Unidentified species 6,Unident. species 6
+cluster 2,Unidentified species 7,Unident. species 7
+cluster 211,New species 6,New species 6
+cluster 217,Unidentified species 8,Unident. species 8
+cluster 25,New species 7,New species 7
+cluster 3,New species 8,New species 8

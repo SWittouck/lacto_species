@@ -1,0 +1,267 @@
+---
+title: "Exploration of taxonomy"
+author: "Stijn Wittouck"
+date: "October 23, 2019"
+output:
+  html_document:
+    depth: 2
+    number_sections: yes
+    theme: united
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(glue)
+library(ggpubr)
+```
+
+Input/output directories: 
+
+```{r}
+din <- "input_v3"
+dout_all <- "results_v3/03_taxonomy"
+dout_paper <- "results_v3/paper_species_taxonomy"
+```
+
+Create output directories: 
+
+```{r}
+if (! dir.exists(dout_all)) dir.create(dout_all, recursive = T)
+if (! dir.exists(dout_paper)) dir.create(dout_paper, recursive = T)
+```
+
+We also duplicate the "abbreviate" function from the legen pipeline (03_identify_clusters/identify_clusters.Rmd) here: 
+
+```{r}
+abbreviate <- function(species) {
+  species %>%
+    str_replace_all("Lactobacillus", "L.") %>%
+    str_replace_all("Pediococcus", "P.") %>%
+    str_replace_all("Leuconostoc", "Leuc.") %>%
+    str_replace_all("Oenococcus", "O.") %>%
+    str_replace_all("Fructobacillus", "F.") %>%
+    str_replace_all("Weissella", "W.") %>%
+    str_replace_all("Convivina", "C.") %>%
+    str_replace_all("Unidentified", "Unident.") %>%
+    str_replace_all("pseudomesenteroides", "pseudomesent.")
+}
+```
+
+The goal of this document is to explore the species-level (re)classification of Lactobacillus Genus Complex genomes by our de novo species taxonomy pipeline. Our taxonomy is compared to the NCBI one. 
+
+# Import data
+
+We need the following information:
+
+* A table with for each genome, the cluster to which it belongs. 
+* A table with for each genome, the NCBI genome assembly report (because we need the NCBI species labels). 
+* A table with validly published names found by tidytypes, to get an idea of how many species and names (including subspecies) have been found.
+* For the type genomes approach: a table with type genomes in our data, identified in an automated manner using the R package tidytypes.
+* For the type 16S rRNA approach: a table with hits of 16S sequences extracted from the genomes, a table with rRNA gene names of all extracted 16S rRNAs to know which genomes yielded 16S rRNAs and which genomes didn't. 
+
+Let's load all these files:
+
+```{r}
+genomes_clusters <- 
+  paste0(din, "/genome_clusters/genomes_clusters.csv") %>%
+  read_csv()
+genomes_ncbi <- 
+  paste0(din, "/taxonomy/genomes_assembly_reports.csv") %>%
+  read_csv() 
+clusters_all <-
+  paste0(din, "/taxonomy/clusters_all_named.csv") %>%
+  read_csv()
+```
+
+# Visualization of reclassifications
+
+## Visualize classification of unclassified
+
+Make a genome table with all genomes and their NCBI and CNI species label:
+
+```{r}
+genomes_taxonomy <-
+  left_join(
+    genomes_clusters %>%
+      left_join(clusters_all) %>%
+      select(genome, species_cni = species),
+    genomes_ncbi %>%
+      select(genome, species_ncbi = species)
+  )
+```
+
+We make a distinction between genomes that are classified and unclassified on NCBI:
+
+```{r}
+unclassified_tags <-
+  c("sp\\.", " bacterium") %>%
+  str_c(collapse = "|")
+genomes_taxonomy <-
+  genomes_taxonomy %>%
+  mutate(classified_ncbi = ! (str_detect(species_ncbi, !! unclassified_tags) | is.na(species_ncbi))) 
+genomes_taxonomy %>%
+  count(classified_ncbi)
+```
+
+We also correct some NCBI species names that contain extra information:
+
+```{r}
+genomes_taxonomy <-
+  genomes_taxonomy %>%
+  mutate_at("species_ncbi", str_extract, "^[^ ]+ [^ ]+")
+```
+
+Bar chart: 
+
+```{r}
+(
+  fig_reclassifications_unclassified <- 
+    genomes_taxonomy %>%
+    filter(! classified_ncbi) %>%
+    count(species_cni) %>%
+    mutate_at("species_cni", abbreviate) %>%
+    mutate(species_cni = fct_reorder(species_cni, n) %>% fct_rev()) %>%
+    mutate(is_new_species = str_detect(species_cni, "species")) %>%
+    mutate_at("is_new_species", if_else, "unknown", "known") %>% 
+    ggplot(aes(x = species_cni, y = n)) +
+    geom_col() + 
+    facet_grid(~ is_new_species, scales = "free_x", space = "free_x") + 
+    scale_y_continuous(breaks = function(limits) seq((limits[1] %/% 2) * 2, floor(limits[2]), by = 2)) +
+    xlab("genome cluster") +
+    ylab("number of genomes") + 
+    theme_bw() +
+    theme(
+      panel.grid.major = element_line(colour = "grey80"),
+      text = element_text(size = 8),
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+      plot.margin = unit(c(0, 1, 0, 2), "cm")
+    )
+)
+ggsave(paste0(dout_all, "/reclassifications_unclassified.png"), units = "cm", width = 17.4, height = 12)
+```
+
+## Visualize reclassifications of genomes that are NOT unclassified in NCBI
+
+Make a genome table with all classified genomes and their CNI and NCBI species annotation: 
+
+```{r}
+genomes_taxonomy_classified <- 
+  genomes_taxonomy %>%
+  filter(classified_ncbi)
+```
+
+Make a list of "boring species" that contain identical genomes in the CNI and NCBI classifications: 
+
+```{r}
+species_cni <- 
+  genomes_taxonomy_classified %>%
+  count(species_cni, species_ncbi) %>%
+  group_by(species_cni) %>%
+  summarize(
+    inv_simpson_cni = 
+      1 / sum((n / sum(n)) ^ 2), n_genomes_cni = sum(n)
+  ) 
+
+species_ncbi <- 
+  genomes_taxonomy_classified %>%
+  count(species_cni, species_ncbi) %>%
+  group_by(species_ncbi) %>%
+  summarize(
+    inv_simpson_ncbi = 
+      1 / sum((n / sum(n)) ^ 2), n_genomes_ncbi = sum(n)
+  )
+
+species_cni_ncbi <- 
+  full_join(
+    species_cni %>% rename(species = species_cni),
+    species_ncbi %>% rename(species = species_ncbi)
+  )
+
+boring_species <- species_cni_ncbi %>%
+  filter(inv_simpson_cni == 1, inv_simpson_ncbi == 1) %>%
+  pull(species)
+```
+
+Compile a table of all genomes belonging to species that are not boring, in either classification: 
+
+```{r}
+genomes_to_plot <- 
+  genomes_taxonomy_classified %>%
+  filter(! species_ncbi %in% !! boring_species) %>%
+  mutate(is_new_species = str_detect(species_cni, "species")) %>%
+  mutate(species_cni_core = str_extract(species_cni, "^[^ ]+ [^ ]+")) %>%
+  mutate(reclassified = if_else(species_cni_core != species_ncbi, "yes", "no")) %>%
+  select(genome, species_cni, species_ncbi, reclassified, is_new_species)
+```
+
+How many genomes do we reclassify? 
+
+```{r}
+count(genomes_to_plot, reclassified)
+```
+
+Scatterplot:
+
+```{r}
+(
+  fig_reclassifications_classified <-
+    genomes_to_plot %>%
+    mutate_at("species_cni", abbreviate) %>%
+    mutate_at("species_ncbi", abbreviate) %>%
+    mutate(species_cni = fct_reorder(species_cni, is_new_species)) %>%
+    count(species_cni, species_ncbi, reclassified) %>%
+    rename(n_genomes = n) %>%
+    ggplot(aes(x = species_ncbi, y = species_cni, col = reclassified, size = n_genomes)) +
+    geom_point() +
+    scale_color_manual(values = c("yes" = "#e31a1c", "no" = "#1f77b4")) + 
+    scale_size(name = "number of genomes") +
+    xlab("NCBI species") + ylab("genome cluster") + 
+    theme_bw() +
+    theme(
+      panel.grid.major = element_line(colour = "grey80"),
+      text = element_text(size = 8),
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+      legend.position = "bottom"
+    )
+)
+ggsave(paste0(dout_all, "/reclassifications_classified.png"), units = "cm", width = 17.4, height = 18)
+```
+
+# Species taxonomy paper: compose figure 4
+
+Load necessary libraries to make figure panel and custom function to given figure letters: 
+
+```{r}
+give_letter <- function(plot, letter) {
+  
+  g <- ggplotGrob(plot + ggtitle(letter))
+  g$layout$l[g$layout$name == "title"] <- 1
+  
+  g
+  
+}
+```
+
+Panel:
+
+```{r}
+ggarrange(
+  fig_reclassifications_unclassified %>% give_letter("A"), 
+  fig_reclassifications_classified %>% give_letter("B"),
+  ncol = 1, nrow = 2, heights = c(1, 2.5)
+)
+ggsave(
+  paste0(dout_paper, "/figure_4_reclassifications.tiff"), 
+  units = "cm", width = 17.4, height = 23
+)
+ggsave(
+  paste0(dout_paper, "/figure_4_reclassifications.pdf"), 
+  units = "cm", width = 17.4, height = 23
+)
+```

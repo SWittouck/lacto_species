@@ -1,0 +1,30 @@
+cluster,species_ncbi,n_16S,sixteen_s_hits,species
+cluster 155,L. backii,28,"L. backii, L. iwatensis",L. backii (?)
+cluster 185,L. bombi,6,L. bombi,L. bombi (?)
+cluster 4,L. coleohominis,1,L. coleohominis,L. coleohominis (?)
+cluster 175,L. kefiri,12,L. kefiri,L. kefiri (?)
+cluster 165,L. panisapium,1,L. panisapium,L. panisapium (?)
+cluster 7,Leuc. carnosum,4,"Leuc. gelidum subsp. aenigmaticum, Leuc. carnosum, Leuc. rapi",Leuc. carnosum (?)
+cluster 157,Leuc. citreum,32,"Leuc. citreum, Leuc. palmae, Leuc. lactis, Leuc. holzapfelii, Leuc. gelidum subsp. aenigmaticum",Leuc. citreum (?)
+cluster 176,Leuc. pseudomesent.,25,"Leuc. gelidum subsp. aenigmaticum, Leuc. pseudomesent., Leuc. rapi, Leuc. holzapfelii",Leuc. pseudomesent. (?)
+cluster 129,P. parvulus,1,P. parvulus,P. parvulus (?)
+cluster 12,W. ceti,25,W. ceti,W. ceti (?)
+cluster 184,W. cibaria,93,W. cibaria,W. cibaria (?)
+cluster 11,W. hellenica,1,"W. hellenica, W. bombi",W. hellenica (?)
+cluster 167,W. koreensis,10,W. koreensis,W. koreensis (?)
+cluster 164,NA,1,NA,New species 1
+cluster 166,NA,1,NA,New species 2
+cluster 168,NA,5,NA,New species 3
+cluster 169,NA,5,NA,New species 4
+cluster 192,NA,5,NA,New species 5
+cluster 211,NA,1,NA,New species 6
+cluster 25,NA,1,NA,New species 7
+cluster 3,NA,1,NA,New species 8
+cluster 206,W. bombi,0,NA,Unident. species 1
+cluster 207,W. hellenica,0,NA,Unident. species 2
+cluster 1,NA,0,NA,Unident. species 3
+cluster 132,NA,10,L. fornicalis,Unident. species 4
+cluster 190,NA,4,L. musae,Unident. species 5
+cluster 196,NA,4,L. panisapium,Unident. species 6
+cluster 2,NA,5,"L. cerevisiae, L. yonginensis",Unident. species 7
+cluster 217,NA,1,L. caviae,Unident. species 8

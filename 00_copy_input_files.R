@@ -2,10 +2,8 @@ library(tidyverse)
 
 # remark: change din to the location of the data folder of the
 # lgc_evolutionary_genomics pipeline
-din <- "~/rhambo/media/harddrive/lgc_comparative_pangenomics/data_v3"
+din <- "~/rhambo/media/harddrive/stijn/projects_phd/legen_pipeline/data_v3"
 dout <- "input_v3"
-
-if (! dir.exists(dout)) dir.create(dout)
 
 # copy files from legen pipeline
 
@@ -16,15 +14,29 @@ c(
   "/similarities/genome_pairs.csv.zip",
   "/genome_clusters/genomes_clusters.csv",
   "/genome_clusters/exclusivity.csv",
-  "/genome_clusters/phylogeny/RAxML_bipartitions.lgc",
-  "/taxonomy/blast/hits_to_type_16s_genes.tsv",
-  "/taxonomy/lgc_genomes_type.csv",
-  "/taxonomy/lgc_names.rda",
-  "/taxonomy/rrnas_16S.txt",
-  "/taxonomy/genomes_assembly_reports.csv"
+  "/taxonomy/clusters_all_named.csv",
+  "/taxonomy/clusters_zerotypegenomes.csv",
+  "/taxonomy/genomes_assembly_reports.csv",
+  "/taxonomy/splits_and_mergers.csv",
+  "/outgroups/outgroup_genomes.tsv", 
+  "/representatives_v3_2/phylogeny/RAxML_bipartitions.lgc",
+  "/representatives_v3_2/pangenome/Results_Mar18/Orthogroups.csv",
+  "/representatives_v3_2/pangenome/Results_Mar18/Orthogroups_UnassignedGenes.csv",
+  "/representatives_v3_3/tree_protein/lacto_protein.treefile",
+  "/representatives_v3_3/tree_dna/lacto_dna.treefile",
+  "/representatives_v3_3/tree_gc/lacto_gc.treefile",
+  "/representatives_v3_3/pangenome/OrthoFinder/Orthogroups/Orthogroups.tsv",
+  "/representatives_v3_3/pangenome/OrthoFinder/Orthogroups/Orthogroups_UnassignedGenes.tsv"
 ) %>%
-  map_chr(~ paste0(din, .)) %>%
-  map(~ file.copy(., dout))
+  tibble(path = .) %>%
+  mutate(
+    from = str_c(din, path), 
+    to = str_c(dout, str_extract(path, "/[^/]+"))
+  ) %>%
+  {
+    walk(.$to, dir.create, showWarnings = F)
+    walk2(.$from, .$to, file.copy)
+  }
 
 # download GTDB (Parks et al.) taxonomy
 
