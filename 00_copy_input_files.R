@@ -18,15 +18,7 @@ c(
   "/taxonomy/clusters_zerotypegenomes.csv",
   "/taxonomy/genomes_assembly_reports.csv",
   "/taxonomy/splits_and_mergers.csv",
-  "/outgroups/outgroup_genomes.tsv", 
-  "/representatives_v3_2/phylogeny/RAxML_bipartitions.lgc",
-  "/representatives_v3_2/pangenome/Results_Mar18/Orthogroups.csv",
-  "/representatives_v3_2/pangenome/Results_Mar18/Orthogroups_UnassignedGenes.csv",
-  "/representatives_v3_3/tree_protein/lacto_protein.treefile",
-  "/representatives_v3_3/tree_dna/lacto_dna.treefile",
-  "/representatives_v3_3/tree_gc/lacto_gc.treefile",
-  "/representatives_v3_3/pangenome/OrthoFinder/Orthogroups/Orthogroups.tsv",
-  "/representatives_v3_3/pangenome/OrthoFinder/Orthogroups/Orthogroups_UnassignedGenes.tsv"
+  "/representatives_v3_2/phylogeny/RAxML_bipartitions.lgc"
 ) %>%
   tibble(path = .) %>%
   mutate(
