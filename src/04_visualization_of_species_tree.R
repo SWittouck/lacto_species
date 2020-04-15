@@ -3,10 +3,10 @@ library(ggtree) # for tree tidying, annotation and visualization
 library(phytools) # for tree manipulation
 
 # Input/output directories 
-din <- "input_v3"
-parsed <- "parsed_v3"
-dout_all <- "results_v3/04_tree"
-dout_paper <- "results_v3/paper_species_taxonomy"
+din <- "data"
+parsed <- "results/parsed"
+dout_all <- "results/04_tree"
+dout_paper <- "results/paper_species_taxonomy"
 
 # Create output directories
 if (! dir.exists(parsed)) dir.create(parsed, recursive = T)

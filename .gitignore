@@ -4,5 +4,8 @@
 .Ruserdata
 
 *.html
-results_*
-parsed_*
+doc
+old_analyses
+results
+
+notes.md

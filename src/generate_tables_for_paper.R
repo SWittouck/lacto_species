@@ -1,8 +1,8 @@
 library(tidyverse)
 
-din_input <- "input_v3"
-din_parsed <- "parsed_v3"
-dout <- "results_v3/paper_species_taxonomy"
+din_input <- "data"
+din_parsed <- "results/parsed"
+dout <- "results/paper_species_taxonomy"
 
 # table 1 - species mergers and splits
 

@@ -23,10 +23,10 @@ library(ggpubr)
 Input/output directories: 
 
 ```{r}
-din <- "input_v3"
-dout_all <- "results_v3/02_similarities_and_clusters"
-dout_paper <- "results_v3/paper_species_taxonomy"
-parsed <- "parsed_v3"
+din <- "data"
+dout_all <- "results/02_similarities_and_clusters"
+dout_paper <- "results/paper_species_taxonomy"
+parsed <- "results/parsed"
 ```
 
 Create output directories: 

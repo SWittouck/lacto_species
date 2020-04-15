@@ -3,7 +3,7 @@ library(tidyverse)
 # remark: change din to the location of the data folder of the
 # lgc_evolutionary_genomics pipeline
 din <- "~/rhambo/media/harddrive/stijn/projects_phd/legen_pipeline/data_v3"
-dout <- "input_v3"
+dout <- "data"
 
 # copy files from legen pipeline
 
